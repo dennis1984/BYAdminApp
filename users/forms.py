@@ -62,12 +62,7 @@ class UpdateUserInfoForm(forms.Form):
     """
     password = forms.CharField(min_length=6, max_length=50, required=False)
     nickname = forms.CharField(max_length=100, required=False)
-    gender = forms.IntegerField(min_value=1, max_value=2, required=False)
-    birthday = forms.DateField(required=False)
-    province = forms.CharField(max_length=16, required=False)
-    city = forms.CharField(max_length=32, required=False)
     head_picture = forms.ImageField(required=False)
-    role_id = forms.IntegerField(required=False)
 
 
 class CreateUserForm(PasswordForm):
@@ -91,26 +86,3 @@ class SetPasswordForm(CreateUserForm):
     """
     忘记密码
     """
-
-
-class BindingActionForm(forms.Form):
-    """
-    绑定用户手机号、邮箱等
-    """
-    username_type = forms.ChoiceField(choices=(('phone', 1),
-                                               ('email', 2)))
-    username = forms.CharField(max_length=200)
-    identifying_code = forms.CharField(max_length=10)
-
-
-class AdvertListForm(forms.Form):
-    food_court_id = forms.IntegerField(min_value=1)
-    ad_position_name = forms.CharField(max_length=20, required=False)
-
-
-class WXAuthLoginForm(forms.Form):
-    callback_url = forms.CharField(max_length=256, required=False)
-
-
-class WBAuthLoginForm(forms.Form):
-    callback_url = forms.CharField(max_length=256, required=False)

@@ -14,8 +14,7 @@ from users.serializers import (UserSerializer,
                                UserInstanceSerializer,
                                UserDetailSerializer,
                                UserListSerializer,
-                               IdentifyingCodeSerializer,
-                               RoleListSerializer)
+                               IdentifyingCodeSerializer,)
 from users.permissions import IsOwnerOrReadOnly
 from users.models import (User,
                           make_token_expire,
@@ -26,9 +25,6 @@ from users.forms import (CreateUserForm,
                          VerifyIdentifyingCodeForm,
                          UpdateUserInfoForm,
                          SetPasswordForm,
-                         BindingActionForm,
-                         WXAuthLoginForm,
-                         WBAuthLoginForm,
                          PhoneForm,
                          EmailForm)
 
@@ -280,10 +276,6 @@ class UserAction(generics.GenericAPIView):
         return User.get_object(**{'pk': request.user.id})
 
     def get_perfect_validate_data(self, **cleaned_data):
-        if 'role_id' in cleaned_data:
-            role = Role.get_object(pk=cleaned_data['role_id'])
-            cleaned_data['role'] = role.name
-            cleaned_data.pop('role_id')
         return cleaned_data
 
     def put(self, request, *args, **kwargs):
@@ -319,112 +311,6 @@ class UserDetail(generics.GenericAPIView):
         serializer = UserDetailSerializer(data=user_detail)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class WXAuthAction(APIView):
-    def get(self, request, *args, **kwargs):
-        """
-        微信第三方登录授权
-        """
-        from users.wx_auth import settings as wx_auth_settings
-        from users.wx_auth.serializers import RandomStringSerializer
-
-        form = WXAuthLoginForm(getattr(request, request.method))
-        if not form.is_valid():
-            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        cld = form.cleaned_data
-        wx_auth_params = copy.deepcopy(wx_auth_settings.WX_AUTH_PARAMS['get_code'])
-        wx_auth_url = wx_auth_settings.WX_AUTH_URLS['get_code']
-        end_params = wx_auth_params.pop('end_params')
-        state = wx_auth_params['state']()
-        wx_auth_params['state'] = state
-        wx_auth_params['redirect_uri'] = urllib.quote_plus(
-            wx_auth_params['redirect_uri'] % cld.get('callback_url', ''))
-        return_url = '%s?%s%s' % (wx_auth_url,
-                                  main.make_dict_to_verify_string(wx_auth_params),
-                                  end_params)
-        serializer = RandomStringSerializer(data={'random_str': state})
-        if serializer.is_valid():
-            serializer.save()
-            return_data = {'wx_auth_url': return_url}
-            return Response(return_data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-class WBAuthAction(APIView):
-    def get(self, request, *args, **kwargs):
-        """
-        微博第三方登录授权
-        """
-        from users.wb_auth import settings as wb_auth_settings
-        from users.wb_auth.serializers import RandomStringSerializer
-
-        form = WBAuthLoginForm(getattr(request, request.method))
-        if not form.is_valid():
-            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        cld = form.cleaned_data
-        wb_auth_params = copy.deepcopy(wb_auth_settings.WB_AUTH_PARAMS['get_code'])
-        wb_auth_url = wb_auth_settings.WB_AUTH_URLS['get_code']
-        state = wb_auth_params['state']()
-        wb_auth_params['state'] = state
-        wb_auth_params['redirect_uri'] = urllib.quote_plus(
-            wb_auth_params['redirect_uri'] % cld.get('callback_url', ''))
-        return_url = '%s?%s' % (wb_auth_url,
-                                main.make_dict_to_verify_string(wb_auth_params))
-        serializer = RandomStringSerializer(data={'random_str': state})
-        if serializer.is_valid():
-            serializer.save()
-            return_data = {'wb_auth_url': return_url}
-            return Response(return_data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserBindingAction(generics.GenericAPIView):
-    """
-    绑定手机号、邮箱及微博等
-    """
-    def get_object_by_openid(self, out_open_id):
-        return User.get_object(**{'out_open_id': out_open_id})
-
-    def is_request_data_valid(self, **kwargs):
-        if kwargs['username_type'] == 'phone':
-            form = PhoneForm({'phone': kwargs['username']})
-            if not form.is_valid():
-                return False, form.errors
-        elif kwargs['username_type'] == 'email':
-            form = EmailForm({'email': kwargs['username']})
-            if not form.is_valid():
-                return False, form.errors
-        return True, None
-
-    def post(self, request, *args, **kwargs):
-        """
-        绑定动作
-        """
-        form = BindingActionForm(request.data)
-        if not form.is_valid():
-            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        cld = form.cleaned_data
-        is_valid, error_message = self.is_request_data_valid(**cld)
-        if not is_valid:
-            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
-        result = verify_identifying_code(cld)
-        if isinstance(result, Exception):
-            return Response({'Detail': result.args}, status=status.HTTP_400_BAD_REQUEST)
-
-        if request.user.is_binding(cld['username_type']):
-            return Response({'Detail': 'The phone/email is already binding'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        serializer = UserSerializer(request.user)
-        try:
-            serializer.binding_phone_or_email_to_user(request, request.user, cld)
-        except Exception as e:
-            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
