@@ -240,7 +240,8 @@ PICTURE_DIRS = {
         'case': os.path.join(WEB_FILE_ROOT, 'case'),                      # 案例文件目录
     },
     'admin': {
-        'head_picture': os.path.join(ADMIN_PICTURE_ROOT, 'head_picture'),        # 用户头像图片目录
+        'head_picture': os.path.join(ADMIN_PICTURE_ROOT, 'head_picture'),  # 用户头像图片目录
+        'qrcode': os.path.join(ADMIN_PICTURE_ROOT, 'qrcode'),              # 二维码图片目录
     }
 }
 
