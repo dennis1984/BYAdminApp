@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'oauth2_provider',
     'users',
-    'comment',
     'common',
 
     # 允许跨域请求
@@ -227,7 +226,7 @@ else:
 WEB_URL_FIX = os.path.join('http://', DOMAIN_NAME)
 
 # 图片根目录
-BUSINESS_PICTURE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static', 'business', 'picture')
+ADMIN_PICTURE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static', 'admin', 'picture')
 WEB_PICTURE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static', 'web', 'picture')
 WEB_FILE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static', 'web', 'file')
 
@@ -241,11 +240,7 @@ PICTURE_DIRS = {
         'case': os.path.join(WEB_FILE_ROOT, 'case'),                      # 案例文件目录
     },
     'admin': {
-        'dishes': os.path.join(BUSINESS_PICTURE_ROOT, 'dishes'),               # 菜品图片目录
-        'head_picture': os.path.join(BUSINESS_PICTURE_ROOT, 'head_picture'),   # 用户头像图片目录
-        'qrcode': os.path.join(BUSINESS_PICTURE_ROOT, 'qrcode'),               # 二维码图片目录
-        'advert': os.path.join(BUSINESS_PICTURE_ROOT, 'advert'),               # 轮播广告图片目录
-        'food_court': os.path.join(BUSINESS_PICTURE_ROOT, 'food_court'),       # 美食城图片目录
+        'head_picture': os.path.join(ADMIN_PICTURE_ROOT, 'head_picture'),        # 用户头像图片目录
     }
 }
 

@@ -16,8 +16,6 @@ urlpatterns = [
     url(r'^user_action/$', users_view.UserAction.as_view()),
     url(r'^user_detail/$', users_view.UserDetail.as_view()),
 
-    url(r'^role_list/$', users_view.RoleList.as_view()),
-
     url(r'^login/$', TokenView.as_view()),
     url(r'^logout/$', users_view.AuthLogout.as_view()),
 ]

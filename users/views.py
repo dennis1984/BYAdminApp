@@ -19,8 +19,7 @@ from users.serializers import (UserSerializer,
 from users.permissions import IsOwnerOrReadOnly
 from users.models import (User,
                           make_token_expire,
-                          IdentifyingCode,
-                          Role)
+                          IdentifyingCode,)
 from users.forms import (CreateUserForm,
                          SendIdentifyingCodeForm,
                          SendIdentifyingCodeWithLoginForm,
@@ -32,7 +31,6 @@ from users.forms import (CreateUserForm,
                          WBAuthLoginForm,
                          PhoneForm,
                          EmailForm)
-from users.wx_auth.views import Oauth2AccessToken
 
 from horizon.views import APIView
 from horizon.main import make_random_number_of_string
@@ -446,26 +444,6 @@ class AuthLogout(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         make_token_expire(request)
         return Response(status=status.HTTP_200_OK)
-
-
-class RoleList(generics.GenericAPIView):
-    """
-    用户角色列表
-    """
-    permission_classes = (IsOwnerOrReadOnly,)
-
-    def get_role_list(self):
-        return Role.filter_objects()
-
-    def post(self, request, *args, **kwargs):
-        role = self.get_role_list()
-
-        serializer = RoleListSerializer(role)
-        data_list = serializer.list_data()
-        if isinstance(data_list, Exception):
-            return Response({'Detail': data_list.args}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(data_list, status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ModelViewSet):
