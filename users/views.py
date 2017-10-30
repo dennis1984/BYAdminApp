@@ -24,9 +24,9 @@ from users.forms import (CreateUserForm,
                          SendIdentifyingCodeWithLoginForm,
                          VerifyIdentifyingCodeForm,
                          UpdateUserInfoForm,
+                         UpdatePasswordForm,
                          SetPasswordForm,
-                         PhoneForm,
-                         EmailForm)
+                         UserListForm)
 
 from horizon.views import APIView
 from horizon.main import make_random_number_of_string
@@ -35,19 +35,19 @@ import copy
 import urllib
 
 
-def verify_identifying_code(params_dict):
+def verify_identifying_code(**kwargs):
     """
     验证验证码
     """
-    username = params_dict['username']
-    identifying_code = params_dict['identifying_code']
+    username = kwargs['username']
+    identifying_code = kwargs['identifying_code']
 
-    instance = IdentifyingCode.get_object_by_phone_or_email(username)
+    instance = IdentifyingCode.get_object_by_username(username)
     if not instance:
-        return Exception(('Identifying code is not existed or expired.',))
+        return False, 'Identifying code is not existed or expired.'
     if instance.identifying_code != identifying_code:
-        return Exception(('Identifying code is incorrect.',))
-    return True
+        return False, 'Identifying code is incorrect.',
+    return True, None
 
 
 class IdentifyingCodeAction(APIView):
@@ -55,40 +55,16 @@ class IdentifyingCodeAction(APIView):
     send identifying code to a phone
     """
     def verify_phone(self, cld):
-        instance = User.get_object_by_username(username_type=cld['username_type'],
-                                               username=cld['username'])
-        if cld['method'] == 'register':     # 用户注册
-            if isinstance(instance, User):
-                return Exception('The phone or email is already registered.')
-        elif cld['method'] == 'forget_password':   # 忘记密码
-            if isinstance(instance, Exception):
-                return Exception('The user of the phone or email is not existed.')
-        else:
-            return Exception('Parameters Error.')
-        return True
-
-    def is_request_data_valid(self, **kwargs):
-        if kwargs['username_type'] == 'phone':
-            form = PhoneForm({'phone': kwargs['username']})
-            if not form.is_valid():
-                return False, form.errors
-        elif kwargs['username_type'] == 'email':
-            form = EmailForm({'email': kwargs['username']})
-            if not form.is_valid():
-                return False, form.errors
+        instance = User.get_object_by_username(username=cld['username'])
+        # 忘记密码
+        if isinstance(instance, Exception):
+            return False, 'The user of the phone or email is not existed.'
         return True, None
 
-    def send_identifying_code(self, identifying_code, **kwargs):
+    def send_identifying_code(self, identifying_code, username):
         # 发送到短信平台
-        if kwargs['username_type'] == 'phone':
-            main.send_message_to_phone({'code': identifying_code},
-                                       (kwargs['username'],))
-        elif kwargs['username_type'] == 'email':
-            # 发送邮件
-            _to = [kwargs['username']]
-            subject = '验证码'
-            text = '您的验证码是%s, 15分钟有效。' % identifying_code
-            main.send_email(_to, subject, text)
+        main.send_message_to_phone({'code': identifying_code},
+                                   (username,))
 
     def post(self, request, *args, **kwargs):
         """
@@ -99,22 +75,19 @@ class IdentifyingCodeAction(APIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        is_valid, error_message = self.is_request_data_valid(**cld)
+        is_valid, error_message = self.verify_phone(cld)
         if not is_valid:
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
-        result = self.verify_phone(cld)
-        if isinstance(result, Exception):
-            return Response({'Detail': result.args}, status=status.HTTP_400_BAD_REQUEST)
 
         identifying_code = make_random_number_of_string(str_length=6)
-        serializer = IdentifyingCodeSerializer(data={'phone_or_email': cld['username'],
+        serializer = IdentifyingCodeSerializer(data={'phone': cld['username'],
                                                      'identifying_code': identifying_code})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
 
         # 发送验证码
-        self.send_identifying_code(identifying_code, **cld)
+        self.send_identifying_code(identifying_code, cld['username'])
         return Response(status=status.HTTP_200_OK)
 
 
@@ -124,40 +97,10 @@ class IdentifyingCodeActionWithLogin(generics.GenericAPIView):
     """
     permission_classes = (IsOwnerOrReadOnly,)
 
-    def send_identifying_code(self, identifying_code, **kwargs):
+    def send_identifying_code(self, identifying_code, username):
         # 发送到短信平台
-        if kwargs['username_type'] == 'phone':
-            main.send_message_to_phone({'code': identifying_code},
-                                       (kwargs['username'],))
-        elif kwargs['username_type'] == 'email':
-            # 发送邮件
-            _to = [kwargs['username']]
-            subject = '验证码'
-            text = '您的验证码是%s, 15分钟有效。' % identifying_code
-            main.send_email(_to, subject, text)
-
-    def is_request_data_valid(self, request, **kwargs):
-        if 'username' in kwargs:
-            if kwargs['username_type'] == 'phone':
-                if request.user.is_binding(kwargs['username_type']):
-                    if kwargs['username'] != request.user.phone:
-                        return False, 'The phone number is incorrect.'
-                else:
-                    user = User.get_object_by_username(**kwargs)
-                    if isinstance(user, User):
-                        return False, 'The phone number is already binding.'
-            elif kwargs['username_type'] == 'email':
-                if request.user.is_binding(kwargs['username_type']):
-                    if kwargs['username'] != request.user.email:
-                        return False, 'The email is incorrect.'
-                else:
-                    user = User.get_object_by_username(**kwargs)
-                    if isinstance(user, User):
-                        return False, 'The email is already binding.'
-        else:
-            if not request.user.is_binding(kwargs['username_type']):
-                return False, 'Your phone or email is not existed.'
-        return True, None
+        main.send_message_to_phone({'code': identifying_code},
+                                   (username,))
 
     def post(self, request, *args, **kwargs):
         form = SendIdentifyingCodeWithLoginForm(request.data)
@@ -165,23 +108,17 @@ class IdentifyingCodeActionWithLogin(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        is_valid, error_message = self.is_request_data_valid(request, **cld)
-        if not is_valid:
-            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
-
-        if 'username' not in cld:
-            if cld['username_type'] == 'phone':
-                cld['username'] = request.user.phone
-            else:
-                cld['username'] = request.user.email
         identifying_code = make_random_number_of_string(str_length=6)
-        serializer = IdentifyingCodeSerializer(data={'phone_or_email': cld['username'],
+        serializer = IdentifyingCodeSerializer(data={'phone': cld['username'],
                                                      'identifying_code': identifying_code})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        try:
+            serializer.save()
+        except Exception as e:
+            return Response(e.args, status=status.HTTP_400_BAD_REQUEST)
 
-        self.send_identifying_code(identifying_code, **cld)
+        self.send_identifying_code(identifying_code, cld['username'])
         return Response(status=status.HTTP_200_OK)
 
 
@@ -194,10 +131,10 @@ class IdentifyingCodeVerify(APIView):
         if not form.is_valid():
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
         cld = form.cleaned_data
-        result = verify_identifying_code(cld)
-        if isinstance(result, Exception):
-            return Response({'Detail': result.args}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'Result': result}, status=status.HTTP_200_OK)
+        is_valid, error_message = verify_identifying_code(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'Result': is_valid}, status=status.HTTP_200_OK)
 
 
 class UserNotLoggedAction(APIView):
@@ -207,39 +144,39 @@ class UserNotLoggedAction(APIView):
     def get_object_by_username(self, phone):
         return User.get_object(**{'phone': phone})
 
-    def is_request_data_valid(self, **kwargs):
-        if kwargs['username_type'] == 'phone':
-            form = PhoneForm({'phone': kwargs['username']})
-            if not form.is_valid():
-                return False, form.errors
-        elif kwargs['username_type'] == 'email':
-            form = EmailForm({'email': kwargs['username']})
-            if not form.is_valid():
-                return False, form.errors
-        return True, None
+    # def is_request_data_valid(self, **kwargs):
+    #     if kwargs['username_type'] == 'phone':
+    #         form = PhoneForm({'phone': kwargs['username']})
+    #         if not form.is_valid():
+    #             return False, form.errors
+    #     elif kwargs['username_type'] == 'email':
+    #         form = EmailForm({'email': kwargs['username']})
+    #         if not form.is_valid():
+    #             return False, form.errors
+    #     return True, None
 
-    def post(self, request, *args, **kwargs):
-        """
-        用户注册
-        """
-        form = CreateUserForm(request.data)
-        if not form.is_valid():
-            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        cld = form.cleaned_data
-        is_valid, error_message = self.is_request_data_valid(**cld)
-        if not is_valid:
-            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
-        result = verify_identifying_code(cld)
-        if isinstance(result, Exception):
-            return Response({'Detail': result.args}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            user = User.objects.create_user(**cld)
-        except Exception as e:
-            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = UserInstanceSerializer(user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # def post(self, request, *args, **kwargs):
+    #     """
+    #     用户注册
+    #     """
+    #     form = CreateUserForm(request.data)
+    #     if not form.is_valid():
+    #         return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     cld = form.cleaned_data
+    #     is_valid, error_message = self.is_request_data_valid(**cld)
+    #     if not is_valid:
+    #         return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+    #     result = verify_identifying_code(**cld)
+    #     if isinstance(result, Exception):
+    #         return Response({'Detail': result.args}, status=status.HTTP_400_BAD_REQUEST)
+    #     try:
+    #         user = User.objects.create_user(**cld)
+    #     except Exception as e:
+    #         return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     serializer = UserInstanceSerializer(user)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
         """
@@ -250,19 +187,18 @@ class UserNotLoggedAction(APIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        result = verify_identifying_code(cld)
-        if isinstance(result, Exception):
-            return Response({'Detail': result.args}, status=status.HTTP_400_BAD_REQUEST)
-        instance = self.get_object_by_username(cld['phone'])
+        is_valid, error_message = verify_identifying_code(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+        instance = self.get_object_by_username(cld['username'])
         if isinstance(instance, Exception):
             return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
         serializer = UserSerializer(instance)
         try:
-            serializer.update_password(request, instance, cld)
+            serializer.update_password(request, instance, cld['password'])
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
 
-        # serializer_response = UserInstanceSerializer(instance)
         return Response(serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
 
 
@@ -271,12 +207,6 @@ class UserAction(generics.GenericAPIView):
     update user API
     """
     permission_classes = (IsOwnerOrReadOnly, )
-
-    def get_object_of_user(self, request):
-        return User.get_object(**{'pk': request.user.id})
-
-    def get_perfect_validate_data(self, **cleaned_data):
-        return cleaned_data
 
     def put(self, request, *args, **kwargs):
         """
@@ -287,7 +217,6 @@ class UserAction(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        cld = self.get_perfect_validate_data(**cld)
         serializer = UserSerializer(request.user)
         try:
             serializer.update_userinfo(request, request.user, cld)
@@ -296,22 +225,65 @@ class UserAction(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
 
+    def patch(self, request, *args, **kwargs):
+        """
+        更新密码 
+        """
+        form = UpdatePasswordForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        verify_params = {'username': request.user.phone,
+                         'identifying_code': cld['identifying_code']}
+        is_valid, error_message = verify_identifying_code(**verify_params)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = UserSerializer(request.user)
+        try:
+            serializer.update_password(request, request.user, cld['password'])
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'Detail': serializer.data}, status=status.HTTP_206_PARTIAL_CONTENT)
+
 
 class UserDetail(generics.GenericAPIView):
     permission_classes = (IsOwnerOrReadOnly, )
 
     def get_user_object(self, request):
-        return User.get_user_detail(request)
+        return User.get_object(id=request.user.id)
 
     def post(self, request, *args, **kwargs):
-        user_detail = self.get_user_object(request)
-        if isinstance(user_detail, Exception):
-            return Response({'Detail': user_detail.args}, status=status.HTTP_400_BAD_REQUEST)
+        user = self.get_user_object(request)
+        if isinstance(user, Exception):
+            return Response({'Detail': user.args}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = UserDetailSerializer(data=user_detail)
-        if not serializer.is_valid():
-            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserList(generics.GenericAPIView):
+    """
+    用户列表
+    """
+    permission_classes = (IsOwnerOrReadOnly, )
+
+    def get_user_list(self, **kwargs):
+        return User.filter_objects(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = UserListForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        user_list = self.get_user_list()
+        serializer = UserListSerializer(user_list)
+        list_data = serializer.list_data(**cld)
+        if isinstance(list_data, Exception):
+            return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(list_data, status=status.HTTP_200_OK)
 
 
 @method_decorator(csrf_exempt, name="dispatch")

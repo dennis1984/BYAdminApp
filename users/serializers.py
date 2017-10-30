@@ -26,11 +26,8 @@ class UserSerializer(BaseModelSerializer):
         fields = ('id', 'phone', 'nickname', 'head_picture',)
 
     @has_permission_to_update
-    def update_password(self, request, instance, validated_data):
-        password = validated_data.get('password', None)
-        if password is None:
-            raise ValueError('Password is cannot be empty.')
-        validated_data['password'] = make_password(password)
+    def update_password(self, request, instance, password):
+        validated_data = {'password': make_password(password)}
         return super(UserSerializer, self).update(instance, validated_data)
 
     @has_permission_to_update
@@ -56,16 +53,8 @@ class UserInstanceSerializer(BaseModelSerializer):
 class UserDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()
     phone = serializers.CharField(allow_blank=True, allow_null=True)
-    email = serializers.EmailField(allow_blank=True, allow_null=True)
+    # email = serializers.EmailField(allow_blank=True, allow_null=True)
     nickname = serializers.CharField(allow_blank=True, allow_null=True)
-    role = serializers.CharField(allow_blank=True, allow_null=True)
-    channel = serializers.CharField()
-
-    wb_uid = serializers.IntegerField(allow_null=True)
-    wx_out_open_id = serializers.IntegerField(allow_null=True)
-    have_set_password = serializers.BooleanField()
-    binding_wb = serializers.BooleanField()
-    binding_wx = serializers.BooleanField()
 
     gender = serializers.IntegerField(allow_null=True)
     birthday = serializers.DateField(allow_null=True)

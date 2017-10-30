@@ -83,13 +83,16 @@ class User(AbstractBaseUser):
             return e
 
     @classmethod
-    def get_object_by_username(cls, username_type, username):
-        if username_type == 'phone':
-            return cls.get_object(phone=username)
-        elif username_type == 'email':
-            return cls.get_object(email=username)
-        else:
-            return Exception('Params is incorrect.')
+    def get_object_by_username(cls, username):
+        return cls.get_object(phone=username)
+
+    @classmethod
+    def filter_objects(cls, **kwargs):
+        kwargs = get_perfect_filter_params(cls, **kwargs)
+        try:
+            return cls.objects.filter(**kwargs)
+        except Exception as e:
+            return e
 
     @classmethod
     def get_objects_list(cls, request, **kwargs):
@@ -128,7 +131,7 @@ def make_token_expire(request):
 
 
 class IdentifyingCode(models.Model):
-    phone_or_email = models.CharField(u'手机号/邮箱', max_length=200, db_index=True)
+    phone = models.CharField(u'手机号', max_length=200, db_index=True)
     identifying_code = models.CharField(u'验证码', max_length=6)
     expires = models.DateTimeField(u'过期时间', default=minutes_15_plus)
 
@@ -137,11 +140,11 @@ class IdentifyingCode(models.Model):
         ordering = ['-expires']
 
     def __unicode__(self):
-        return self.phone_or_email
+        return self.phone
 
     @classmethod
-    def get_object_by_phone_or_email(cls, username):
-        instances = cls.objects.filter(**{'phone_or_email': username,
+    def get_object_by_username(cls, username):
+        instances = cls.objects.filter(**{'phone': username,
                                           'expires__gt': now()})
         if instances:
             return instances[0]

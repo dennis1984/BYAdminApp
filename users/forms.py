@@ -29,23 +29,14 @@ class SendIdentifyingCodeForm(forms.Form):
     """
     发送手机/邮箱验证码（未登录状态）
     """
-    username_type = forms.ChoiceField(choices=(('phone', 1),
-                                               ('email', 2)))
     username = forms.CharField(max_length=200)
-    method = forms.ChoiceField(choices=(('register', 1),
-                                        ('forget_password', 2)),
-                               error_messages={
-                                   'required': u'method 值必须为["register","forget_password"]之一。',
-                               })
 
 
 class SendIdentifyingCodeWithLoginForm(forms.Form):
     """
     发送手机/邮箱验证码（登录状态）
     """
-    username_type = forms.ChoiceField(choices=(('phone', 1),
-                                               ('email', 2)))
-    username = forms.CharField(max_length=200, required=False)
+    username = forms.CharField(max_length=200)
 
 
 class VerifyIdentifyingCodeForm(PhoneForm):
@@ -60,17 +51,25 @@ class UpdateUserInfoForm(forms.Form):
     """
     更改用户信息
     """
-    password = forms.CharField(min_length=6, max_length=50, required=False)
     nickname = forms.CharField(max_length=100, required=False)
     head_picture = forms.ImageField(required=False)
+
+
+class UpdatePasswordForm(forms.Form):
+    """
+    更新密码
+    """
+    password = forms.CharField(min_length=6, max_length=50)
+    identifying_code = forms.CharField(min_length=6, max_length=10,
+                                       error_messages={
+                                           'required': u'验证码不能为空'
+                                       })
 
 
 class CreateUserForm(PasswordForm):
     """
     用户注册
     """
-    username_type = forms.ChoiceField(choices=(('phone', 1),
-                                               ('email', 2)))
     username = forms.CharField(max_length=200)
     identifying_code = forms.CharField(min_length=6, max_length=10,
                                        error_messages={
@@ -82,7 +81,18 @@ class EmailForm(forms.Form):
     email = forms.EmailField(max_length=200)
 
 
-class SetPasswordForm(CreateUserForm):
+class SetPasswordForm(PasswordForm):
     """
     忘记密码
     """
+    username = forms.CharField(max_length=200)
+    identifying_code = forms.CharField(min_length=6, max_length=10,
+                                       error_messages={
+                                           'required': u'验证码不能为空'
+                                       })
+
+
+class UserListForm(forms.Form):
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)
+
