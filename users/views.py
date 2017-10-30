@@ -11,8 +11,6 @@ from django.shortcuts import redirect
 from django.views.generic import View
 
 from users.serializers import (UserSerializer,
-                               UserInstanceSerializer,
-                               UserDetailSerializer,
                                UserListSerializer,
                                IdentifyingCodeSerializer,)
 from users.permissions import IsOwnerOrReadOnly

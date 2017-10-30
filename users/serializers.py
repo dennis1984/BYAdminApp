@@ -44,29 +44,18 @@ class UserSerializer(BaseModelSerializer):
         return super(UserSerializer, self).update(instance, _validated_data)
 
 
-class UserInstanceSerializer(BaseModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'phone', 'nickname', 'head_picture',)
-
-
 class UserDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()
     phone = serializers.CharField(allow_blank=True, allow_null=True)
     # email = serializers.EmailField(allow_blank=True, allow_null=True)
     nickname = serializers.CharField(allow_blank=True, allow_null=True)
 
-    gender = serializers.IntegerField(allow_null=True)
-    birthday = serializers.DateField(allow_null=True)
-    province = serializers.CharField(allow_blank=True, allow_null=True)
-    city = serializers.CharField(allow_blank=True, allow_null=True)
-
     last_login = serializers.DateTimeField()
     head_picture = serializers.ImageField()
 
 
 class UserListSerializer(BaseListSerializer):
-    child = UserDetailSerializer()
+    child = UserSerializer()
 
 
 class IdentifyingCodeSerializer(BaseModelSerializer):
