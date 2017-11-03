@@ -327,3 +327,41 @@ class CommentAndReplyDetailSerializer(BaseSerializer):
 class CommentAndReplyListSerializer(BaseListSerializer):
     child = CommentAndReplyDetailSerializer()
 
+
+class InformationSerializer(BaseModelSerializer):
+    class Meta:
+        model = Information
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        pop_keys = ['comment_id', 'pk', 'id']
+        for key in pop_keys:
+            if key in validated_data:
+                validated_data.pop(key)
+        return super(InformationSerializer, self).update(instance, validated_data)
+
+    def delete(self, instance):
+        validated_data = {'status': instance.id + 1}
+        return super(InformationSerializer, self).update(instance, validated_data)
+
+
+class InformationDetailSerializer(BaseSerializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    subtitle = serializers.CharField()
+    description = serializers.CharField()
+    content = serializers.CharField()
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = serializers.ListField()
+    # 浏览数
+    read_count = serializers.IntegerField()
+    # 点赞数量
+    like = serializers.IntegerField()
+    created = serializers.DateTimeField()
+    updated = serializers.DateTimeField()
+
+
+class InformationListSerializer(BaseListSerializer):
+    child = InformationDetailSerializer()
+
+

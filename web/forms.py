@@ -345,3 +345,36 @@ class CommentAndReplyListForm(forms.Form):
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 
+
+class InformationInputForm(forms.Form):
+    title = forms.CharField(max_length=128)
+    subtitle = forms.CharField(max_length=128, required=False)
+    description = forms.CharField(required=False)
+    content = forms.CharField(required=False)
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = forms.CharField(max_length=256)
+
+
+class InformationUpdateForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+    title = forms.CharField(max_length=128, required=False)
+    subtitle = forms.CharField(max_length=128, required=False)
+    description = forms.CharField(required=False)
+    content = forms.CharField(required=False)
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = forms.CharField(max_length=256, required=False)
+
+
+class InformationDeleteForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class InformationDetailForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class InformationListForm(forms.Form):
+    title = forms.CharField(max_length=128, required=False)
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)
+

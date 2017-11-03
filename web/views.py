@@ -30,7 +30,9 @@ from web.serializers import (DimensionSerializer,
                              ReplyCommentSerializer,
                              CommentAndReplyDetailSerializer,
                              CommentAndReplyListSerializer,
-                             CommentSerializer)
+                             CommentSerializer,
+                             InformationDetailSerializer,
+                             InformationListSerializer)
 from web.permissions import IsOwnerOrReadOnly
 from web.forms import (DimensionActionForm,
                        DimensionUpdateForm,
@@ -1500,5 +1502,40 @@ class CommentAndReplyList(generics.GenericAPIView):
             return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(list_data, status=status.HTTP_200_OK)
 
+
+class InformationAction(generics.GenericAPIView):
+    """
+    资讯操作
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def put(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
+
+
+class InformationDetail(generics.GenericAPIView):
+    """
+    资讯详情
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+
+class InformationList(generics.GenericAPIView):
+    """
+    资讯详情列表
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+    
+    def post(self, request, *args, **kwargs):
+        pass
 
 
