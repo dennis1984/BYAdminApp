@@ -3,11 +3,11 @@ from horizon import forms
 
 
 class PhoneForm(forms.Form):
-    phone = forms.CharField(max_length=20, min_length=11,
-                            error_messages={
-                                'required': u'手机号不能为空',
-                                'min_length': u'手机号位数不够'
-                            })
+    username = forms.CharField(max_length=20, min_length=11,
+                               error_messages={
+                                   'required': u'手机号不能为空',
+                                   'min_length': u'手机号位数不够'
+                               })
 
 
 class PasswordForm(forms.Form):
