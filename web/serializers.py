@@ -120,6 +120,71 @@ class TagConfigureListSerializer(BaseListSerializer):
     child = TagConfigureSerializer()
 
 
+class MediaSerializer(BaseModelSerializer):
+    class Meta:
+        model = Media
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        pop_keys = ['media_id', 'pk', 'id']
+        for key in pop_keys:
+            if key in validated_data:
+                validated_data.pop(key)
+        return super(MediaSerializer, self).update(instance, validated_data)
+
+    def delete(self, instance):
+        validated_data = {'status': instance.id + 1}
+        return super(MediaSerializer, self).update(instance, validated_data)
+
+
+class MediaDetailSerializer(BaseSerializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    subtitle = serializers.CharField()
+    description = serializers.CharField()
+
+    # 资源类型：10：电影 20：电视剧 30：综艺节目
+    media_type = serializers.IntegerField()
+    # 题材类别  1：爱情 2：战争 3：校园 4：真人秀
+    theme_type = serializers.IntegerField()
+    # 项目进度  1：筹备期 2：策划期 3：xxx
+    progress = serializers.IntegerField()
+
+    # 模板类型 1：模板1  2：模板2
+    template_type = serializers.IntegerField()
+    # 资源概要展示类型：1：电影、剧集  2：综艺、活动
+    outline_type = serializers.IntegerField()
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = serializers.CharField()
+
+    # 资源热度
+    temperature = serializers.FloatField()
+    # 票房预测
+    box_office_forecast = serializers.FloatField()
+    # 口碑预测
+    public_praise_forecast = serializers.FloatField()
+
+    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
+    #                                        "主演": ["成龙", "李连杰"],
+    #                                        "出演": ["巩俐", "章子怡"], ......}
+    media_outline = serializers.CharField()
+
+    # 预计上映/播出时间
+    air_time = serializers.DateTimeField()
+
+    # 运营标记 0: 未设定 1：热门
+    mark = serializers.IntegerField()
+
+    picture_profile = serializers.ImageField()
+    picture_detail = serializers.ImageField()
+    created = serializers.DateTimeField()
+    updated = serializers.DateTimeField()
+
+
+class MediaListSerializer(BaseListSerializer):
+    child = MediaDetailSerializer()
+
+
 class MediaConfigureSerializer(BaseModelSerializer):
     class Meta:
         model = MediaConfigure
@@ -334,7 +399,7 @@ class InformationSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
-        pop_keys = ['comment_id', 'pk', 'id']
+        pop_keys = ['information_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
                 validated_data.pop(key)
@@ -365,3 +430,38 @@ class InformationListSerializer(BaseListSerializer):
     child = InformationDetailSerializer()
 
 
+class CaseSerializer(BaseModelSerializer):
+    class Meta:
+        model = Case
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        pop_keys = ['case_id', 'pk', 'id']
+        for key in pop_keys:
+            if key in validated_data:
+                validated_data.pop(key)
+        return super(CaseSerializer, self).update(instance, validated_data)
+
+    def delete(self, instance):
+        validated_data = {'status': instance.id + 1}
+        return super(CaseSerializer, self).update(instance, validated_data)
+
+
+class CaseDetailSerializer(BaseSerializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    subtitle = serializers.CharField()
+    description = serializers.CharField()
+    content = serializers.CharField()
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = serializers.ListField()
+    # 浏览数
+    read_count = serializers.IntegerField()
+    # 点赞数量
+    like = serializers.IntegerField()
+    created = serializers.DateTimeField()
+    updated = serializers.DateTimeField()
+
+
+class CaseListSerializer(BaseListSerializer):
+    child = CaseDetailSerializer()

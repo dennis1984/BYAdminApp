@@ -128,31 +128,39 @@ class MediaInputForm(forms.Form):
                                       error_messages={
                                           'required': 'Template type must in [1, 2]'
                                       })
-
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField()
 
+    # 资源热度
     temperature = forms.FloatField(min_value=0.1, max_value=10.0)
+    # 票房预测
     box_office_forecast = forms.FloatField(min_value=0.1, max_value=5.0)
+    # 口碑预测
     public_praise_forecast = forms.FloatField(min_value=0.1, max_value=5.0)
 
-    # 导演：数据格式为JSON字符串，如：['斯皮尔伯格', '冯小刚']
-    director = forms.CharField(max_length=256)
-    # 主演：数据格式为JSON字符串，如：['汤姆克鲁斯', '威尔史密斯', '皮尔斯布鲁斯南']
-    stars = forms.CharField(max_length=256)
-    # 演员：数据格式为JSON字符串，如：['王晓霞', '詹姆斯', '韦德']
-    actors = forms.CharField(max_length=256)
-    # 监制：数据格式为JSON字符串，如：['欧文']
-    producer = forms.CharField(max_length=256)
-    # 出品公司：数据格式为JSON字符串，如：['华文映像', '福星传媒']
-    production_company = forms.CharField(max_length=256)
+    # # 导演：数据格式为JSON字符串，如：['斯皮尔伯格', '冯小刚']
+    # director = forms.CharField(max_length=256)
+    # # 主演：数据格式为JSON字符串，如：['汤姆克鲁斯', '威尔史密斯', '皮尔斯布鲁斯南']
+    # stars = forms.CharField(max_length=256)
+    # # 演员：数据格式为JSON字符串，如：['王晓霞', '詹姆斯', '韦德']
+    # actors = forms.CharField(max_length=256)
+    # # 监制：数据格式为JSON字符串，如：['欧文']
+    # producer = forms.CharField(max_length=256)
+    # # 出品公司：数据格式为JSON字符串，如：['华文映像', '福星传媒']
+    # production_company = forms.CharField(max_length=256)
+    #
+    # # 预计开机/录制时间
+    # recorded_time = forms.DateTimeField()
 
-    # 预计开机/录制时间
-    recorded_time = forms.DateTimeField()
+    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
+    #                                        "主演": ["成龙", "李连杰"],
+    #                                        "出演": ["巩俐", "章子怡"], ......}
+    media_outline = forms.CharField()
+
     # 预计上映/播出时间
     air_time = forms.DateTimeField()
-    # 预计播出平台：数据格式为JSON字符串，如：['一线卫视', '视频网络渠道']
-    play_platform = forms.CharField(max_length=256)
+    # # 预计播出平台：数据格式为JSON字符串，如：['一线卫视', '视频网络渠道']
+    # play_platform = forms.CharField(max_length=256)
 
     # 运营标记 0: 未设定 1：热门
     mark = forms.ChoiceField(choices=((0, 1),
@@ -163,7 +171,51 @@ class MediaInputForm(forms.Form):
 
     picture_profile = forms.ImageField()
     picture_detail = forms.ImageField()
-    picture_hd = forms.ImageField()
+
+
+class MediaUpdateForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+    title = forms.CharField(max_length=128, required=False)
+    subtitle = forms.CharField(max_length=128, required=False)
+    description = forms.CharField(required=False)
+
+    template_type = forms.ChoiceField(choices=((1, 1),
+                                               (2, 2)),
+                                      required=False)
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = forms.CharField(required=False)
+    # 资源热度
+    temperature = forms.FloatField(min_value=0.1, max_value=10.0, required=False)
+    # 票房预测
+    box_office_forecast = forms.FloatField(min_value=0.1, max_value=5.0, required=False)
+    # 口碑预测
+    public_praise_forecast = forms.FloatField(min_value=0.1, max_value=5.0, required=False)
+    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
+    #                                        "主演": ["成龙", "李连杰"],
+    #                                        "出演": ["巩俐", "章子怡"], ......}
+    media_outline = forms.CharField(required=False)
+    # 预计上映/播出时间
+    air_time = forms.DateTimeField(required=False)
+    # 运营标记 0: 未设定 1：热门
+    mark = forms.ChoiceField(choices=((0, 1),
+                                      (1, 2)),
+                             required=False)
+    picture_profile = forms.ImageField(required=False)
+    picture_detail = forms.ImageField(required=False)
+
+
+class MediaDetailForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class MediaDeleteForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class MediaListForm(forms.Form):
+    title = forms.CharField(max_length=128, required=False)
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)
 
 
 class MediaConfigureInputForm(forms.Form):
@@ -350,7 +402,7 @@ class InformationInputForm(forms.Form):
     title = forms.CharField(max_length=128)
     subtitle = forms.CharField(max_length=128, required=False)
     description = forms.CharField(required=False)
-    content = forms.CharField(required=False)
+    content = forms.CharField()
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256)
 
@@ -378,3 +430,35 @@ class InformationListForm(forms.Form):
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 
+
+class CaseInputForm(forms.Form):
+    title = forms.CharField(max_length=128)
+    subtitle = forms.CharField(max_length=128, required=False)
+    description = forms.CharField(required=False)
+    content = forms.CharField()
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = forms.CharField(max_length=256)
+
+
+class CaseUpdateForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+    title = forms.CharField(max_length=128, required=False)
+    subtitle = forms.CharField(max_length=128, required=False)
+    description = forms.CharField(required=False)
+    content = forms.CharField(required=False)
+    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    tags = forms.CharField(max_length=256, required=False)
+
+
+class CaseDeleteForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class CaseDetailForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class CaseListForm(forms.Form):
+    title = forms.CharField(max_length=128, required=False)
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)

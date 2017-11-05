@@ -56,23 +56,29 @@ class Media(models.Model):
     # 资源属性：数据格式为JSON字符串，如：[1, 3, 5] （数字为属性ID）
     # attributes = models.CharField('资源属性', max_length=256, )
 
-    # 导演：数据格式为JSON字符串，如：['斯皮尔伯格', '冯小刚']
-    director = models.CharField('导演', max_length=256)
-    # 主演：数据格式为JSON字符串，如：['汤姆克鲁斯', '威尔史密斯', '皮尔斯布鲁斯南']
-    stars = models.CharField('主演', max_length=256)
-    # 演员：数据格式为JSON字符串，如：['王晓霞', '詹姆斯', '韦德']
-    actors = models.CharField('演员', max_length=256)
-    # 监制：数据格式为JSON字符串，如：['欧文']
-    producer = models.CharField('监制', max_length=256)
-    # 出品公司：数据格式为JSON字符串，如：['华文映像', '福星传媒']
-    production_company = models.CharField('出品公司', max_length=256)
+    # # 导演：数据格式为JSON字符串，如：['斯皮尔伯格', '冯小刚']
+    # director = models.CharField('导演', max_length=256)
+    # # 主演：数据格式为JSON字符串，如：['汤姆克鲁斯', '威尔史密斯', '皮尔斯布鲁斯南']
+    # stars = models.CharField('主演', max_length=256)
+    # # 演员：数据格式为JSON字符串，如：['王晓霞', '詹姆斯', '韦德']
+    # actors = models.CharField('演员', max_length=256)
+    # # 监制：数据格式为JSON字符串，如：['欧文']
+    # producer = models.CharField('监制', max_length=256)
+    # # 出品公司：数据格式为JSON字符串，如：['华文映像', '福星传媒']
+    # production_company = models.CharField('出品公司', max_length=256)
+    #
+    # # 预计开机/录制时间
+    # recorded_time = models.DateTimeField('开机时间')
 
-    # 预计开机/录制时间
-    recorded_time = models.DateTimeField('开机时间')
+    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
+    #                                        "主演": ["成龙", "李连杰"],
+    #                                        "出演": ["巩俐", "章子怡"], ......}
+    media_outline = models.TextField('资源概述')
+
     # 预计上映/播出时间
     air_time = models.DateTimeField('播出时间')
-    # 预计播出平台：数据格式为JSON字符串，如：['一线卫视', '视频网络渠道']
-    play_platform = models.CharField('播出平台', max_length=256)
+    # # 预计播出平台：数据格式为JSON字符串，如：['一线卫视', '视频网络渠道']
+    # play_platform = models.CharField('播出平台', max_length=256)
 
     # 运营标记 0: 未设定 1：热门
     mark = models.IntegerField('运营标记', default=0)
@@ -83,9 +89,9 @@ class Media(models.Model):
     picture_detail = models.ImageField('详情图片', max_length=200,
                                        upload_to=MEDIA_PICTURE_PATH,
                                        default=os.path.join(MEDIA_PICTURE_PATH, 'noImage.png'))
-    picture_hd = models.ImageField('高清图片', max_length=200,
-                                   upload_to=MEDIA_PICTURE_PATH,
-                                   default=os.path.join(MEDIA_PICTURE_PATH, 'noImage.png'))
+    # picture_hd = models.ImageField('高清图片', max_length=200,
+    #                                upload_to=MEDIA_PICTURE_PATH,
+    #                                default=os.path.join(MEDIA_PICTURE_PATH, 'noImage.png'))
     # 资源状态：1：正常 非1：已删除
     status = models.IntegerField('资源状态', default=1)
     created = models.DateTimeField('创建时间', default=now)
@@ -95,9 +101,12 @@ class Media(models.Model):
 
     class Meta:
         db_table = 'by_media'
-        # unique_together = ('user_id', 'dishes_id', 'status')
         ordering = ['-updated']
         app_label = 'Web_App.web_media.models.Media'
+
+    class AdminMeta:
+        fuzzy_fields = ['name']
+        json_fields = ['tags', 'media_outline']
 
     def __unicode__(self):
         return self.title
@@ -111,12 +120,42 @@ class Media(models.Model):
             return e
 
     @classmethod
-    def filter_objects(cls, **kwargs):
+    def get_detail(cls, **kwargs):
+        instance = cls.get_object(**kwargs)
+        if isinstance(instance, Exception):
+            return instance
+        return instance
+
+    @property
+    def perfect_detail(self):
+        detail = model_to_dict(self)
+        for key in detail.keys():
+            if key in self.AdminMeta.json_fields:
+                detail[key] = json.loads(detail[key])
+        return detail
+
+    @classmethod
+    def filter_objects(cls, fuzzy=True, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
+        if fuzzy:
+            for key in kwargs:
+                if key in cls.AdminMeta.fuzzy_fields:
+                    kwargs['%s__contains' % key] = kwargs.pop(key)
         try:
             return cls.objects.filter(**kwargs)
         except Exception as e:
             return e
+
+    @classmethod
+    def filter_details(cls, **kwargs):
+        instances = cls.filter_objects(**kwargs)
+        if isinstance(instances, Exception):
+            return instances
+
+        details = []
+        for ins in instances:
+            details.append(ins.perfect_detail)
+        return details
 
 
 class MediaConfigure(models.Model):
@@ -428,7 +467,7 @@ class Information(models.Model):
     read_count = models.IntegerField('浏览数', default=0)
     # 点赞数量
     like = models.IntegerField('点赞数量', default=0)
-    # 数据状态：1：正常 非1：已删除
+    # 数据状态：1    ：正常 非1：已删除
     status = models.IntegerField('数据状态', default=1)
 
     created = models.DateTimeField('创建时间', default=now)
@@ -439,6 +478,9 @@ class Information(models.Model):
     class Meta:
         db_table = 'by_information'
         app_label = 'Web_App.web_media.models.Information'
+
+    class AdminMeta:
+        fuzzy_fields = ['title']
 
     def __unicode__(self):
         return self.title
@@ -452,12 +494,40 @@ class Information(models.Model):
             return e
 
     @classmethod
-    def filter_objects(cls, **kwargs):
+    def get_detail(cls, **kwargs):
+        instance = cls.get_object(**kwargs)
+        if isinstance(instance, Exception):
+            return instance
+        return instance.perfect_detail
+
+    @property
+    def perfect_detail(self):
+        detail = model_to_dict(self)
+        detail['tags'] = json.loads(detail['tags'])
+        return detail
+
+    @classmethod
+    def filter_objects(cls, fuzzy=True, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
+        if fuzzy:
+            for key in kwargs:
+                if key in cls.AdminMeta.fuzzy_fields:
+                    kwargs['%s__contains' % key] = kwargs.pop(key)
         try:
             return cls.objects.filter(**kwargs)
         except Exception as e:
             return e
+
+    @classmethod
+    def filter_details(cls, **kwargs):
+        instances = cls.filter_objects(**kwargs)
+        if isinstance(instances, Exception):
+            return instances
+
+        details = []
+        for ins in instances:
+            details.append(ins.perfect_detail)
+        return details
 
 
 CASE_FILE_PATH = settings.PICTURE_DIRS['web']['case']
@@ -491,6 +561,9 @@ class Case(models.Model):
         db_table = 'by_case'
         app_label = 'Web_App.web_media.models.Case'
 
+    class AdminMeta:
+        fuzzy_fields = ['title']
+
     def __unicode__(self):
         return self.title
 
@@ -503,9 +576,38 @@ class Case(models.Model):
             return e
 
     @classmethod
-    def filter_objects(cls, **kwargs):
+    def get_detail(cls, **kwargs):
+        instance = cls.get_object(**kwargs)
+        if isinstance(instance, Exception):
+            return instance
+        return instance.perfect_detail
+
+    @property
+    def perfect_detail(self):
+        detail = model_to_dict(self)
+        detail['tags'] = json.loads(detail['tags'])
+        return detail
+
+    @classmethod
+    def filter_objects(cls, fuzzy=True, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
+        if fuzzy:
+            for key in kwargs:
+                if key in cls.AdminMeta.fuzzy_fields:
+                    kwargs['%s__contains' % key] = kwargs.pop(key)
         try:
             return cls.objects.filter(**kwargs)
         except Exception as e:
             return e
+
+    @classmethod
+    def filter_details(cls, **kwargs):
+        instances = cls.filter_objects(**kwargs)
+        if isinstance(instances, Exception):
+            return instances
+
+        details = []
+        for ins in instances:
+            details.append(ins.perfect_detail)
+        return details
+
