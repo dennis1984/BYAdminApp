@@ -256,6 +256,13 @@ class AttributeAction(generics.GenericAPIView):
     def get_attribute_object(self, attribute_id):
         return Attribute.get_object(pk=attribute_id)
 
+    def is_request_data_valid(self, **kwargs):
+        if 'dimension_id' in kwargs:
+            dime_ins = Dimension.get_object(pk=kwargs['dimension_id'])
+            if isinstance(dime_ins, Exception):
+                return False, dime_ins.args
+        return True, None
+
     def post(self, request, *args, **kwargs):
         """
         添加属性信息
@@ -265,6 +272,10 @@ class AttributeAction(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
+        is_valid, error_message = self.is_request_data_valid(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = AttributeSerializer(data=cld)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -283,6 +294,10 @@ class AttributeAction(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
+        is_valid, error_message = self.is_request_data_valid(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
         instance = self.get_attribute_object(attribute_id=cld['id'])
         if isinstance(instance, Exception):
             return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
