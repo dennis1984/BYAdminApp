@@ -92,9 +92,9 @@ class Attribute(models.Model):
     description = models.CharField('描述', max_length=256, null=True, blank=True)
     dimension_id = models.IntegerField('所属维度ID')
 
-    picture = models.ImageField('属性矢量图片', max_length=200,
-                                upload_to=IMAGE_PICTURE_PATH,
-                                default=os.path.join(IMAGE_PICTURE_PATH, 'noImage.png'))
+    # picture = models.ImageField('属性矢量图片', max_length=200,
+    #                             upload_to=IMAGE_PICTURE_PATH,
+    #                             default=os.path.join(IMAGE_PICTURE_PATH, 'noImage.png'))
     # 资源状态：1：正常 非1：已删除
     status = models.IntegerField('数据状态', default=1)
     created = models.DateTimeField('创建时间', default=now)
@@ -105,7 +105,7 @@ class Attribute(models.Model):
     class Meta:
         db_table = 'by_attribute'
         unique_together = ['name', 'status']
-        ordering = ['-updated']
+        ordering = ['dimension_id', '-updated']
         app_label = 'Web_App.web_dimensions.models.Attribute'
 
     class AdminMeta:
@@ -123,6 +123,19 @@ class Attribute(models.Model):
             return e
 
     @classmethod
+    def get_detail(cls, **kwargs):
+        instance = cls.get_object(**kwargs)
+        if isinstance(instance, Exception):
+            return instance
+
+        dime_instance = Dimension.get_object(pk=instance.dimension_id)
+        if isinstance(dime_instance, Exception):
+            return dime_instance
+        detail = model_to_dict(instance)
+        detail['dimension_name'] = dime_instance.name
+        return detail
+
+    @classmethod
     def filter_objects(cls, fuzzy=True, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
         if fuzzy:
@@ -133,6 +146,27 @@ class Attribute(models.Model):
             return cls.objects.filter(**kwargs)
         except Exception as e:
             return e
+
+    @classmethod
+    def filter_details(cls, **kwargs):
+        instances = cls.filter_objects(**kwargs)
+        if isinstance(instances, Exception):
+            return instances
+
+        details = []
+        dime_dict = {}
+        for ins in instances:
+            dime_ins = dime_dict.get(ins.dimension_id)
+            if not dime_ins:
+                dime_ins = Dimension.get_object(pk=ins.dimension_id)
+                if isinstance(dime_ins, Exception):
+                    continue
+                dime_dict[ins.dimension_id] = dime_ins
+
+            item_detail = model_to_dict(ins)
+            item_detail['dimension_name'] = dime_ins.name
+            details.append(item_detail)
+        return details
 
 
 TAG_PICTURE_PATH = settings.PICTURE_DIRS['web']['tag']

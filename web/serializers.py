@@ -74,8 +74,18 @@ class AttributeSerializer(BaseModelSerializer):
         return super(AttributeSerializer, self).update(instance, validated_data)
 
 
+class AttributeDetailSerializer(BaseSerializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    dimension_id = serializers.IntegerField()
+    dimension_name = serializers.CharField()
+    created = serializers.DateTimeField()
+    updated = serializers.DateTimeField()
+
+
 class AttributeListSerializer(BaseListSerializer):
-    child = AttributeSerializer()
+    child = AttributeDetailSerializer()
 
 
 class TagSerializer(BaseModelSerializer):

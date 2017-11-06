@@ -320,8 +320,8 @@ class AttributeDetail(generics.GenericAPIView):
     """
     permission_classes = (IsOwnerOrReadOnly,)
 
-    def get_attribute_object(self, attribute_id):
-        return Attribute.get_object(pk=attribute_id)
+    def get_attribute_detail(self, attribute_id):
+        return Attribute.get_detail(pk=attribute_id)
 
     def post(self, request, *args, **kwargs):
         form = AttributeDetailForm(request.data)
@@ -329,7 +329,7 @@ class AttributeDetail(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        instance = self.get_attribute_object(attribute_id=cld['id'])
+        instance = self.get_attribute_detail(attribute_id=cld['id'])
         if isinstance(instance, Exception):
             return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -344,7 +344,7 @@ class AttributeList(generics.GenericAPIView):
     permission_classes = (IsOwnerOrReadOnly,)
 
     def get_attribute_list(self, **kwargs):
-        return Attribute.filter_objects(**kwargs)
+        return Attribute.filter_details(**kwargs)
 
     def post(self, request, *args, **kwargs):
         form = AttributeListForm(request.data)
