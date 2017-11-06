@@ -7,6 +7,7 @@ from rest_framework import status
 from web.serializers import (DimensionSerializer,
                              DimensionListSerializer,
                              AttributeSerializer,
+                             AttributeDetailSerializer,
                              AttributeListSerializer,
                              TagSerializer,
                              TagListSerializer,
@@ -329,11 +330,13 @@ class AttributeDetail(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        instance = self.get_attribute_detail(attribute_id=cld['id'])
-        if isinstance(instance, Exception):
-            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+        detail = self.get_attribute_detail(attribute_id=cld['id'])
+        if isinstance(detail, Exception):
+            return Response({'Detail': detail.args}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AttributeSerializer(instance)
+        serializer = AttributeDetailSerializer(data=detail)
+        if not serializer.is_valid():
+            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -352,8 +355,13 @@ class AttributeList(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        instances = self.get_attribute_list(**cld)
-        serializer = AttributeListSerializer(instances)
+        details = self.get_attribute_list(**cld)
+        if isinstance(details, Exception):
+            return Response({'Detail': details.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AttributeListSerializer(data=details)
+        if not serializer.is_valid():
+            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         list_data = serializer.list_data(**cld)
         if isinstance(list_data, Exception):
             return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
