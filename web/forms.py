@@ -5,7 +5,7 @@ from horizon import forms
 class DimensionActionForm(forms.Form):
     name = forms.CharField(max_length=32)
     subtitle = forms.CharField(max_length=32)
-    description = forms.CharField(max_length=256)
+    description = forms.CharField(max_length=256, required=False)
     sort_order = forms.IntegerField(min_value=1)
     picture = forms.ImageField()
 

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.utils.timezone import now
 
-from media.models import Media
+from Web_App.web_media.models import Media
 from horizon.models import (model_to_dict,
                             get_perfect_filter_params,
                             BaseManager)

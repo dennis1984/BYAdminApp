@@ -15,7 +15,7 @@ class AdminAppRouter(object):
     def db_for_write(self, model, **hints):
         module_name = self.get_module_name(model)
         if module_name == 'Web_App':
-            return 'admin'
+            return 'web'
         return None
 
     def allow_relation(self, obj1, obj2, **hints):

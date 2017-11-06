@@ -32,5 +32,6 @@ urlpatterns = [
     # url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
     url(r'^auth/', include('users.urls', namespace='user')),
+    url(r'^web/', include('web.urls', namespace='web')),
 
 ]
