@@ -65,16 +65,14 @@ class AttributeListForm(forms.Form):
 class TagInputForm(forms.Form):
     name = forms.CharField(max_length=64)
     description = forms.CharField(max_length=256, required=False)
-    picture_profile = forms.ImageField()
-    picture_detail = forms.ImageField()
+    picture = forms.ImageField()
 
 
 class TagUpdateForm(forms.Form):
     id = forms.IntegerField(min_value=1)
     name = forms.CharField(max_length=64, required=False)
     description = forms.CharField(max_length=256, required=False)
-    picture_profile = forms.ImageField(required=False)
-    picture_detail = forms.ImageField(required=False)
+    picture = forms.ImageField(required=False)
 
 
 class TagDeleteForm(forms.Form):

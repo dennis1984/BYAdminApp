@@ -77,7 +77,7 @@ class AttributeSerializer(BaseModelSerializer):
 class AttributeDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
-    description = serializers.CharField()
+    description = serializers.CharField(allow_blank=True, allow_null=True)
     dimension_id = serializers.IntegerField()
     dimension_name = serializers.CharField()
     created = serializers.DateTimeField()
