@@ -126,8 +126,19 @@ class TagConfigureSerializer(BaseModelSerializer):
         return super(TagConfigureSerializer, self).update(instance, validated_data)
 
 
+class TagConfigureDetailSerializer(BaseSerializer):
+    id = serializers.IntegerField()
+    tag_id = serializers.IntegerField()
+    tag_name = serializers.CharField()
+    attribute_id = serializers.IntegerField()
+    attribute_name = serializers.CharField()
+    match_value = serializers.FloatField()
+    created = serializers.DateTimeField()
+    updated = serializers.DateTimeField()
+
+
 class TagConfigureListSerializer(BaseListSerializer):
-    child = TagConfigureSerializer()
+    child = TagConfigureDetailSerializer()
 
 
 class MediaSerializer(BaseModelSerializer):

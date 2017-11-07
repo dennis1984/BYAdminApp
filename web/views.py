@@ -12,6 +12,7 @@ from web.serializers import (DimensionSerializer,
                              TagSerializer,
                              TagListSerializer,
                              TagConfigureSerializer,
+                             TagConfigureDetailSerializer,
                              TagConfigureListSerializer,
                              MediaConfigureSerializer,
                              MediaConfigureDetailSerializer,
@@ -597,8 +598,8 @@ class TagConfigureDetail(generics.GenericAPIView):
     """
     permission_classes = (IsOwnerOrReadOnly,)
 
-    def get_tag_configure_object(self, tag_configure_id):
-        return TagConfigure.get_object(pk=tag_configure_id)
+    def get_tag_configure_detail(self, tag_configure_id):
+        return TagConfigure.get_detail(pk=tag_configure_id)
 
     def post(self, request, *args, **kwargs):
         form = TagConfigureDetailForm(request.data)
@@ -606,11 +607,13 @@ class TagConfigureDetail(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        instance = self.get_tag_configure_object(tag_configure_id=cld['id'])
-        if isinstance(instance, Exception):
-            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+        detail = self.get_tag_configure_detail(tag_configure_id=cld['id'])
+        if isinstance(detail, Exception):
+            return Response({'Detail': detail.args}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = TagConfigureSerializer(instance)
+        serializer = TagConfigureDetailSerializer(data=detail)
+        if not serializer.is_valid():
+            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -625,16 +628,24 @@ class TagConfigureList(generics.GenericAPIView):
 
     def get_tag_configure_list(self, **kwargs):
         if 'tag_name' in kwargs:
-            tag_instance = Tag.get_object(name=kwargs['tag_name'])
-            if isinstance(tag_instance, Exception):
-                return tag_instance
-            if 'tag_id' in kwargs:
-                if kwargs['tag_id'] != tag_instance.id:
-                    return Exception('The instance does not exist.')
-            else:
-                kwargs['tag_id'] = tag_instance.id
+            tag_instances = Tag.filter_objects(name=kwargs['tag_name'])
+            if isinstance(tag_instances, Exception):
+                return tag_instances
+            # if 'tag_id' in kwargs:
+            #     if kwargs['tag_id'] != tag_instance.id:
+            #         return Exception('The instance does not exist.')
+            # else:
+            #     kwargs['tag_id'] = tag_instance.id
+            kwargs['tag_id__in'] = [ins.id for ins in tag_instances]
             kwargs.pop('tag_name')
-        return TagConfigure.filter_objects(**kwargs)
+        if 'attribute_name' in kwargs:
+            attr_instances = Attribute.filter_objects(name=kwargs['attribute_name'])
+            if isinstance(attr_instances, Exception):
+                return attr_instances
+            kwargs['attribute_id__in'] = [ins.id for ins in attr_instances]
+            kwargs.pop('attribute_name')
+
+        return TagConfigure.filter_details(**kwargs)
 
     def post(self, request, *args, **kwargs):
         form = TagConfigureListForm(request.data)

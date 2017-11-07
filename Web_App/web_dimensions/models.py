@@ -254,7 +254,7 @@ class TagConfigure(models.Model):
     class Meta:
         db_table = 'by_tag_configure'
         unique_together = ['tag_id', 'attribute_id', 'status']
-        ordering = ['-updated']
+        ordering = ['tag_id', 'attribute_id', '-updated']
         app_label = 'Web_App.web_dimensions.models.TagConfigure'
 
     def __unicode__(self):
@@ -269,12 +269,56 @@ class TagConfigure(models.Model):
             return e
 
     @classmethod
+    def get_detail(cls, **kwargs):
+        instance = cls.get_object(**kwargs)
+        if isinstance(instance, Exception):
+            return instance
+
+        tag_ins = Tag.get_object(pk=instance.tag_id)
+        if isinstance(tag_ins, Exception):
+            return tag_ins
+        attr_ins = Attribute.get_object(pk=instance.attribute_id)
+        if isinstance(attr_ins, Exception):
+            return attr_ins
+
+        detail = model_to_dict(instance)
+        detail['tag_name'] = tag_ins.name
+        detail['attribute_name'] = attr_ins.name
+        return detail
+
+    @classmethod
     def filter_objects(cls, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
         try:
             return cls.objects.filter(**kwargs)
         except Exception as e:
             return e
+
+    @classmethod
+    def filter_details(cls, **kwargs):
+        instances = cls.filter_objects(**kwargs)
+        if isinstance(instances, Exception):
+            return instances
+
+        tag_ins_dict = {}
+        attr_ins_dict = {}
+        details = []
+        for ins in instances:
+            tag_ins = tag_ins_dict.get(ins.tag_id)
+            if not tag_ins:
+                tag_ins = Tag.get_object(pk=ins.tag_id)
+                if isinstance(tag_ins, Exception):
+                    continue
+            attr_ins = attr_ins_dict.get(ins.attribute_id)
+            if not attr_ins:
+                attr_ins = Attribute.get_object(pk=ins.attribute_id)
+                if isinstance(attr_ins, Exception):
+                    continue
+            item_detail = model_to_dict(ins)
+            item_detail['tag_name'] = tag_ins.name
+            item_detail['attribute_name'] = attr_ins.name
+            details.append(item_detail)
+        return details
 
 
 class AdjustCoefficient(models.Model):

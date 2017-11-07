@@ -111,7 +111,7 @@ class TagConfigureDetailForm(forms.Form):
 
 class TagConfigureListForm(forms.Form):
     tag_name = forms.CharField(max_length=64, required=False)
-    tag_id = forms.IntegerField(min_value=1, required=False)
+    attribute_name = forms.CharField(max_length=64, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 
