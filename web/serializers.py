@@ -306,8 +306,9 @@ class ProjectProgressListSerializer(BaseListSerializer):
 
 
 class ResourceTagSerializer(BaseModelSerializer):
-    model = ResourceTags
-    fields = '__all__'
+    class Meta:
+        model = ResourceTags
+        fields = '__all__'
 
     def update(self, instance, validated_data):
         pop_keys = ['pk', 'id']
