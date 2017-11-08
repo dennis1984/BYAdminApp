@@ -1308,7 +1308,7 @@ class ResourceTagAction(generics.GenericAPIView):
             serializer.save()
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
         form = ResourceTagUpdateForm(request.data)
