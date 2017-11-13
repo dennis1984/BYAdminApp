@@ -136,6 +136,13 @@ class MediaInputForm(forms.Form):
     # 口碑预测
     public_praise_forecast = forms.FloatField(min_value=0.1, max_value=5.0)
 
+    # # 资源类型
+    # media_type_id = forms.IntegerField(min_value=1)
+    # 题材类别
+    theme_type_id = forms.IntegerField(min_value=1)
+    # 项目进度
+    progress_id = forms.IntegerField(min_value=1)
+
     # # 导演：数据格式为JSON字符串，如：['斯皮尔伯格', '冯小刚']
     # director = forms.CharField(max_length=256)
     # # 主演：数据格式为JSON字符串，如：['汤姆克鲁斯', '威尔史密斯', '皮尔斯布鲁斯南']
@@ -187,6 +194,11 @@ class MediaUpdateForm(forms.Form):
     box_office_forecast = forms.FloatField(min_value=0.1, max_value=5.0, required=False)
     # 口碑预测
     public_praise_forecast = forms.FloatField(min_value=0.1, max_value=5.0, required=False)
+    # 题材类别
+    theme_type_id = forms.IntegerField(min_value=1, required=False)
+    # 项目进度
+    progress_id = forms.IntegerField(min_value=1, required=False)
+
     # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
     #                                        "主演": ["成龙", "李连杰"],
     #                                        "出演": ["巩俐", "章子怡"], ......}

@@ -1013,6 +1013,12 @@ class MediaAction(generics.GenericAPIView):
     def get_media_object(self, media_id):
         return Media.get_object(pk=media_id)
 
+    def get_media_type_object(self, media_type_id):
+        return MediaType.get_object(pk=media_type_id)
+
+    def get_theme_type_object(self, theme_type_id):
+        return ThemeType.get_object(pk=theme_type_id)
+
     def is_request_data_valid(self, **kwargs):
         if 'tags' in kwargs:
             try:
@@ -1024,6 +1030,14 @@ class MediaAction(generics.GenericAPIView):
             for item in tags:
                 if not isinstance(item, (str, unicode)):
                     return False, 'Params [tags] is incorrect.'
+        if 'theme_type_id' in kwargs:
+            theme_type_ins = ThemeType.get_object(pk=kwargs['theme_type_id'])
+            if isinstance(theme_type_ins, Exception):
+                return False, theme_type_ins.args
+        if 'progress_id' in kwargs:
+            progress_ins = ProjectProgress.get_object(pk=kwargs['progress_id'])
+            if isinstance(progress_ins, Exception):
+                return False, progress_ins.args
         if 'media_outline' in kwargs:
             try:
                 media_outline = json.loads(kwargs['media_outline'])
@@ -1053,6 +1067,11 @@ class MediaAction(generics.GenericAPIView):
         is_valid, error_message = self.is_request_data_valid(**cld)
         if not is_valid:
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+        theme_type_ins = self.get_theme_type_object(cld['theme_type_id'])
+        media_type_ins = self.get_media_object(theme_type_ins.media_type_id)
+        if isinstance(media_type_ins, Exception):
+            return Response({'Detail': media_type_ins.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = MediaSerializer(data=cld)
         if not serializer.is_valid():
