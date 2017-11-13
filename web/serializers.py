@@ -150,7 +150,9 @@ class MediaSerializer(BaseModelSerializer):
             min_size = (320, 200)
             media_image = data['picture']
             try:
-                image_ins = main.BaseImage(image=media_image.image, min_size=min_size)
+                image_ins = main.BaseImage(image=media_image.image,
+                                           image_size=media_image.size,
+                                           min_size=min_size)
                 pic_detail_name = '%s_detail.%s' % media_image.name.split('.')
                 pic_profile_name = '%s_profile.%s' % media_image.name.split('.')
 
@@ -164,7 +166,6 @@ class MediaSerializer(BaseModelSerializer):
                     field_name=forms.ImageField,
                     name=pic_profile_name
                 )
-                data['picture_profile'] = image_ins.clip_resize(min_size[0], min_size[1])
             except Exception:
                 pass
             data.pop('picture')

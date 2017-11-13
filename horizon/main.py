@@ -390,7 +390,7 @@ class BaseImage(object):
     postfix_format_dict = {'JPEG': 'jpg',
                            'PNG': 'png'}
 
-    def __init__(self, image_name=None, image=None, **kwargs):
+    def __init__(self, image_name=None, image=None, image_size=0, **kwargs):
         if image:
             self.image = image
         else:
@@ -399,6 +399,10 @@ class BaseImage(object):
             except Exception as e:
                 raise Exception(e)
 
+        if not image_size:
+            self.image_size = self.get_image_size(self.image)
+        else:
+            self.image_size = image_size
         for key in kwargs:
             if key in ('max_size', 'min_size'):
                 if not isinstance(kwargs[key], (tuple, list)):
@@ -411,16 +415,20 @@ class BaseImage(object):
 
         self.close_alpha()
         # 判断图片是否大于限定的最大值
-        buff = cStringIO.StringIO(self.image.fp.read())
-        disk_size = len(buff.read())
-        if disk_size > self.max_disk_size:
-            ratio = self.max_disk_size / float(disk_size)
+        if self.image_size > self.max_disk_size:
+            ratio = self.max_disk_size / float(self.image_size)
             self.image = self.resize(ratio)
 
     @classmethod
-    def to_in_memory_uploaded_file(cls, image, field_name, name):
+    def get_image_size(cls, image):
         buff = cStringIO.StringIO(image.fp.read())
         disk_size = len(buff.read())
+        buff.close()
+        return disk_size
+
+    @classmethod
+    def to_in_memory_uploaded_file(cls, image, field_name, name):
+        disk_size = cls.get_image_size(image)
         return InMemoryUploadedFile(file=image,
                                     field_name=field_name,
                                     name=name,
