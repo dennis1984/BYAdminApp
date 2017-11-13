@@ -1051,11 +1051,11 @@ class MediaAction(generics.GenericAPIView):
             for key, item_value in media_outline.items():
                 if not isinstance(key, (str, unicode)):
                     return False, 'Params [media_outline] is incorrect.'
-                if not isinstance(item_value, (list, tuple)):
-                    return False, 'Params [media_outline] is incorrect.'
-                for item2 in item_value:
-                    if not isinstance(item2, (str, unicode)):
-                        return False, 'Params [media_outline] is incorrect.'
+                if isinstance(item_value, (list, tuple)):
+                    # return False, 'Params [media_outline] is incorrect.'
+                    for item2 in item_value:
+                        if not isinstance(item2, (str, unicode)):
+                            return False, 'Params [media_outline] is incorrect.'
         return True, None
 
     def post(self, request, *args, **kwargs):

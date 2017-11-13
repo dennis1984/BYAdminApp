@@ -371,6 +371,7 @@ def select_random_element_from_array(source_list, count):
 
 # 图片处理类
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+from django.core.files.uploadedfile import InMemoryUploadedFile
 import cStringIO
 
 MEDIA_IMAGE_PATH = settings.PICTURE_DIRS['web']['media']
@@ -415,6 +416,17 @@ class BaseImage(object):
         if disk_size > self.max_disk_size:
             ratio = self.max_disk_size / float(disk_size)
             self.image = self.resize(ratio)
+
+    @classmethod
+    def to_in_memory_uploaded_file(cls, image, field_name, name):
+        buff = cStringIO.StringIO(image.fp.read())
+        disk_size = len(buff.read())
+        return InMemoryUploadedFile(file=image,
+                                    field_name=field_name,
+                                    name=name,
+                                    content_type='image/%s' % cls.postfix_format_dict[image.format],
+                                    size=disk_size,
+                                    charset='utf8')
 
     @property
     def is_too_small(self):
