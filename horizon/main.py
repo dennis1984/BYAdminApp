@@ -14,6 +14,7 @@ from barcode.writer import ImageWriter
 import base64
 import random
 import time
+import copy
 
 import smtplib
 from email.mime.text import MIMEText
@@ -366,4 +367,153 @@ def select_random_element_from_array(source_list, count):
         range_list.remove(pop_index)
     new_list = [source_list[index] for index in random_index_list]
     return new_list
+
+
+# 图片处理类
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+import cStringIO
+
+MEDIA_IMAGE_PATH = settings.PICTURE_DIRS['web']['media']
+
+
+class BaseImage(object):
+    """
+    图片处理类：提供缩略图、等比例压缩图和裁决图片
+    """
+    save_path = MEDIA_IMAGE_PATH
+    quality = 85
+    image_format = 'JPEG'
+    max_disk_size = 1 * 1024 * 1024  # 最大占用磁盘空间大小
+    postfix_format_dict = {'JPEG': 'jpg',
+                           'PNG': 'png'}
+
+    def __init__(self, image_name, image=None):
+        if image:
+            self.image = image
+        else:
+            try:
+                self.image = Image.open(image_name)
+            except Exception as e:
+                raise Exception(e)
+
+        self.close_alpha()
+        # 判断图片是否大于限定的最大值
+        buff = cStringIO.StringIO(self.image.fp.read())
+        disk_size = len(buff.read())
+        if disk_size > self.max_disk_size:
+            ratio = self.max_disk_size / float(disk_size)
+            self.image = self.resize(ratio)
+
+    def compress(self, width=0, height=0, image_format=None):
+        """
+        缩略图
+        返回：新图片对象
+        """
+        # if not save_path:
+        #     save_path = self.save_path
+        if not image_format:
+            image_format = self.image_format
+        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+                               self.postfix_format_dict[image_format])
+        # file_path = os.path.join(save_path, file_name)
+        new_image = copy.copy(self.image)
+        try:
+            new_image.thumbnail(width, height)
+            # new_image.save(file_path, image_format.upper())
+        except Exception as e:
+            return e
+        return new_image
+
+    def resize(self, ratio, quality=None, image_format=None):
+        """
+        等比例缩放
+        返回：新图片对象
+        """
+        if ratio >= 1:
+            return TypeError('Params [ratio] is incorrect.')
+
+        if not quality:
+            quality = self.quality
+        # if not save_path:
+        #     save_path = self.save_path
+        if not image_format:
+            image_format = self.image_format
+        new_image = copy.copy(self.image)
+        origin_width, origin_height = self.image.size
+
+        # file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+        #                        self.postfix_format_dict[image_format])
+        # file_path = os.path.join(save_path, file_name)
+        new_image.resize((int(origin_width*ratio), int(origin_height*ratio)), Image.ANTIALIAS)
+        # new_image.save(file_path, image_format.upper(), quality=quality)
+        return new_image
+
+    def clip_resize(self, goal_width=0, goal_height=0, image_format=None, quality=None):
+        """
+        裁决及等比例缩放 
+        返回：新图片的文件名（绝对目录）
+        """
+        if not image_format:
+            image_format = self.image_format
+        if not quality:
+            quality = self.quality
+        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+                               self.postfix_format_dict[image_format])
+        # file_path = os.path.join(save_path, file_name)
+
+        origin_width, origin_height = self.image.size
+        if goal_width > origin_width or goal_height > origin_height:
+            return ValueError('Params [goal_width] or [goal_height] is incorrect.')
+
+        goal_ratio = goal_height / float(goal_width)
+        origin_ratio = origin_height / float(origin_width)
+        if origin_ratio >= goal_ratio:   # 原图过高
+            height = origin_width * goal_ratio
+            width = origin_width
+            x = 0
+            y = (origin_height - height) / 2
+        else:  # 原图过宽
+            height = origin_height
+            width = origin_height / goal_ratio
+            y = 0
+            x = (origin_width - width) / 2
+
+        new_image = copy.copy(self.image)
+        box = (x, y, width + x, height + y)
+        # 剪切图片
+        new_image = new_image.crop(box)
+
+        # 压缩图片
+        try:
+            new_image.resize((int(goal_width), int(goal_height), Image.ANTIALIAS))
+            # new_image.save(file_path, image_format.upper(), quality=quality)
+        except Exception as e:
+            return e
+        return new_image
+
+    def close_alpha(self):
+        """
+        如果图片格式是PNG，并且alpha通道是开启的，
+        则将图片转化为JPEG格式，以此节省磁盘空间。
+        """
+        if self.image.mode == 'RGBA':
+            # 使用白色来填充背景
+            new_image = Image.new('RGBA', self.image.size, (255, 255, 255))
+            new_image.paste(self.image,
+                            (0, 0, self.image.size[0], self.image.size[1]),
+                            self.image)
+
+            # 关闭Alpha通道
+            # new_file_name = '%s.jpg' % os.path.join(
+            #     os.path.dirname(self.image.filename),
+            #     os.path.basename(self.image.filename).split('.', 1)[0]
+            # )
+            # new_image.save(new_file_name, 'JPEG')
+            tmp_image = Image.new('RGB', self.image.size, (255, 255, 255))
+            tmp_image.paste(new_image,
+                            (0, 0, self.image.size[0], self.image.size[1]),
+                            new_image)
+            self.image = tmp_image
+
+
 
