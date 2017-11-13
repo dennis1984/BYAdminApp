@@ -142,6 +142,20 @@ class TagConfigureListSerializer(BaseListSerializer):
 
 
 class MediaSerializer(BaseModelSerializer):
+    def __init__(self, instance=None, data=None, **kwargs):
+        if data:
+            min_size = (320, 200)
+            try:
+                image_ins = main.BaseImage(image=data['picture'], min_size=min_size)
+                data['picture_detail'] = image_ins.image
+                data['picture_profile'] = image_ins.clip_resize(min_size[0], min_size[1])
+            except Exception:
+                pass
+            data.pop('picture')
+            super(MediaSerializer, self).__init__(data=data, **kwargs)
+        else:
+            super(MediaSerializer, self).__init__(instance, **kwargs)
+
     class Meta:
         model = Media
         fields = '__all__'

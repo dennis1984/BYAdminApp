@@ -167,8 +167,7 @@ class MediaInputForm(forms.Form):
                                  'required': 'mark must in [0, 1]'
                              })
 
-    picture_profile = forms.ImageField()
-    picture_detail = forms.ImageField()
+    picture = forms.ImageField()
 
 
 class MediaUpdateForm(forms.Form):

@@ -384,10 +384,12 @@ class BaseImage(object):
     quality = 85
     image_format = 'JPEG'
     max_disk_size = 1 * 1024 * 1024  # 最大占用磁盘空间大小
+    max_size = (None, None)     # 最大分辨率
+    min_size = (320, 200)       # 最小分辨率
     postfix_format_dict = {'JPEG': 'jpg',
                            'PNG': 'png'}
 
-    def __init__(self, image_name, image=None):
+    def __init__(self, image_name=None, image=None, **kwargs):
         if image:
             self.image = image
         else:
@@ -395,6 +397,16 @@ class BaseImage(object):
                 self.image = Image.open(image_name)
             except Exception as e:
                 raise Exception(e)
+
+        for key in kwargs:
+            if key in ('max_size', 'min_size'):
+                if not isinstance(kwargs[key], (tuple, list)):
+                    raise TypeError('Params [max_size, min_size] must be tuple or list.')
+            setattr(self, key, kwargs[key])
+
+        # 判断图片分辨率是否太小
+        if self.is_too_small:
+            raise TypeError('The image size is too small.')
 
         self.close_alpha()
         # 判断图片是否大于限定的最大值
@@ -404,6 +416,17 @@ class BaseImage(object):
             ratio = self.max_disk_size / float(disk_size)
             self.image = self.resize(ratio)
 
+    @property
+    def is_too_small(self):
+        if self.image.size < self.min_size:
+            return True
+
+    @property
+    def is_too_big(self):
+        if self.max_size:
+            if self.image.size > self.max_size:
+                return True
+
     def compress(self, width=0, height=0, image_format=None):
         """
         缩略图
@@ -411,10 +434,10 @@ class BaseImage(object):
         """
         # if not save_path:
         #     save_path = self.save_path
-        if not image_format:
-            image_format = self.image_format
-        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-                               self.postfix_format_dict[image_format])
+        # if not image_format:
+        #     image_format = self.image_format
+        # file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+        #                        self.postfix_format_dict[image_format])
         # file_path = os.path.join(save_path, file_name)
         new_image = copy.copy(self.image)
         try:
@@ -432,12 +455,12 @@ class BaseImage(object):
         if ratio >= 1:
             return TypeError('Params [ratio] is incorrect.')
 
-        if not quality:
-            quality = self.quality
+        # if not quality:
+        #     quality = self.quality
         # if not save_path:
         #     save_path = self.save_path
-        if not image_format:
-            image_format = self.image_format
+        # if not image_format:
+        #     image_format = self.image_format
         new_image = copy.copy(self.image)
         origin_width, origin_height = self.image.size
 
@@ -451,14 +474,14 @@ class BaseImage(object):
     def clip_resize(self, goal_width=0, goal_height=0, image_format=None, quality=None):
         """
         裁决及等比例缩放 
-        返回：新图片的文件名（绝对目录）
+        返回：新图片对象
         """
-        if not image_format:
-            image_format = self.image_format
-        if not quality:
-            quality = self.quality
-        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-                               self.postfix_format_dict[image_format])
+        # if not image_format:
+        #     image_format = self.image_format
+        # if not quality:
+        #     quality = self.quality
+        # file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+        #                        self.postfix_format_dict[image_format])
         # file_path = os.path.join(save_path, file_name)
 
         origin_width, origin_height = self.image.size
