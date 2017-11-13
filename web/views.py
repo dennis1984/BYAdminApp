@@ -1028,8 +1028,11 @@ class MediaAction(generics.GenericAPIView):
             if not isinstance(tags, (list, tuple)):
                 return False, 'Params [tags] is incorrect.'
             for item in tags:
-                if not isinstance(item, (str, unicode)):
+                if not isinstance(item, int):
                     return False, 'Params [tags] is incorrect.'
+                tag_ins = ResourceTags.get_object(pk=item)
+                if isinstance(tag_ins, Exception):
+                    return False, tag_ins.args
         if 'theme_type_id' in kwargs:
             theme_type_ins = ThemeType.get_object(pk=kwargs['theme_type_id'])
             if isinstance(theme_type_ins, Exception):
