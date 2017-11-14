@@ -3,7 +3,6 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from django.conf import settings
-from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from horizon.models import model_to_dict
 from horizon import main
@@ -144,6 +143,9 @@ class TagConfigureListSerializer(BaseListSerializer):
     child = TagConfigureDetailSerializer()
 
 
+MEDIA_IMAGE_PATH = settings.PICTURE_DIRS['web']['media']
+
+
 class MediaSerializer(BaseModelSerializer):
     def __init__(self, instance=None, data=None, **kwargs):
         if data:
@@ -153,19 +155,10 @@ class MediaSerializer(BaseModelSerializer):
                 image_ins = main.BaseImage(image=media_image.image,
                                            image_size=media_image.size,
                                            min_size=min_size)
-                pic_detail_name = '%s_detail.%s' % media_image.name.split('.')
-                pic_profile_name = '%s_profile.%s' % media_image.name.split('.')
-
-                data['picture_detail'] = main.BaseImage.to_in_memory_uploaded_file(
-                    image=media_image.image,
-                    field_name=forms.ImageField,
-                    name=pic_detail_name
-                )
-                data['picture_profile'] = main.BaseImage.to_in_memory_uploaded_file(
-                    image=image_ins.clip_resize(min_size[0], min_size[1]),
-                    field_name=forms.ImageField,
-                    name=pic_profile_name
-                )
+                data['picture_detail'] = image_ins.get_perfect_image(save_path=MEDIA_IMAGE_PATH)
+                data['picture_profile'] = image_ins.clip_resize(min_size[0],
+                                                                min_size[1],
+                                                                save_path=MEDIA_IMAGE_PATH)
             except Exception:
                 pass
             data.pop('picture')

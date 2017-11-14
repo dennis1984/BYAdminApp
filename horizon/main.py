@@ -413,12 +413,6 @@ class BaseImage(object):
         if self.is_too_small:
             raise TypeError('The image size is too small.')
 
-        self.close_alpha()
-        # 判断图片是否大于限定的最大值
-        if self.image_size > self.max_disk_size:
-            ratio = self.max_disk_size / float(self.image_size)
-            self.image = self.resize(ratio)
-
     @classmethod
     def get_image_size(cls, image):
         buff = cStringIO.StringIO(image.fp.read())
@@ -447,62 +441,74 @@ class BaseImage(object):
             if self.image.size > self.max_size:
                 return True
 
-    def compress(self, width=0, height=0, image_format=None):
+    def get_perfect_image(self, save_path=None):
+        if not save_path:
+            save_path = self.save_path
+        self.close_alpha()
+        # 判断图片是否大于限定的最大值
+        if self.image_size > self.max_disk_size:
+            ratio = self.max_disk_size / float(self.image_size)
+            return self.resize(ratio, save_path=save_path)
+        else:
+            return self.resize(1, save_path=save_path)
+
+    def compress(self, width=0, height=0, image_format=None, save_path=None):
         """
         缩略图
-        返回：新图片对象
+        返回：新图片的名称（绝对目录）
         """
-        # if not save_path:
-        #     save_path = self.save_path
-        # if not image_format:
-        #     image_format = self.image_format
-        # file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-        #                        self.postfix_format_dict[image_format])
-        # file_path = os.path.join(save_path, file_name)
+        if not save_path:
+            save_path = self.save_path
+        if not image_format:
+            image_format = self.image_format
+        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+                               self.postfix_format_dict[image_format])
+        file_path = os.path.join(save_path, file_name)
         new_image = copy.copy(self.image)
         try:
             new_image.thumbnail(width, height)
-            # new_image.save(file_path, image_format.upper())
+            new_image.save(file_path, image_format.upper())
         except Exception as e:
             return e
-        return new_image
+        return file_path
 
-    def resize(self, ratio, quality=None, image_format=None):
+    def resize(self, ratio, quality=None, image_format=None, save_path=None):
         """
         等比例缩放
-        返回：新图片对象
+        返回：新图片的名称（绝对目录）
         """
-        if ratio >= 1:
+        if ratio > 1:
             return TypeError('Params [ratio] is incorrect.')
 
-        # if not quality:
-        #     quality = self.quality
-        # if not save_path:
-        #     save_path = self.save_path
-        # if not image_format:
-        #     image_format = self.image_format
+        if not quality:
+            quality = self.quality
+        if not save_path:
+            save_path = self.save_path
+        if not image_format:
+            image_format = self.image_format
         new_image = copy.copy(self.image)
         origin_width, origin_height = self.image.size
 
-        # file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-        #                        self.postfix_format_dict[image_format])
-        # file_path = os.path.join(save_path, file_name)
+        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+                               self.postfix_format_dict[image_format])
+        file_path = os.path.join(save_path, file_name)
         new_image.resize((int(origin_width*ratio), int(origin_height*ratio)), Image.ANTIALIAS)
-        # new_image.save(file_path, image_format.upper(), quality=quality)
-        return new_image
+        new_image.save(file_path, image_format.upper(), quality=quality)
+        return file_path
 
-    def clip_resize(self, goal_width=0, goal_height=0, image_format=None, quality=None):
+    def clip_resize(self, goal_width=0, goal_height=0, image_format=None,
+                    quality=None, save_path=None):
         """
         裁决及等比例缩放 
-        返回：新图片对象
+        返回：新图片的名称（绝对目录）
         """
-        # if not image_format:
-        #     image_format = self.image_format
-        # if not quality:
-        #     quality = self.quality
-        # file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-        #                        self.postfix_format_dict[image_format])
-        # file_path = os.path.join(save_path, file_name)
+        if not image_format:
+            image_format = self.image_format
+        if not quality:
+            quality = self.quality
+        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
+                               self.postfix_format_dict[image_format])
+        file_path = os.path.join(save_path, file_name)
 
         origin_width, origin_height = self.image.size
         if goal_width > origin_width or goal_height > origin_height:
@@ -529,10 +535,10 @@ class BaseImage(object):
         # 压缩图片
         try:
             new_image.resize((int(goal_width), int(goal_height), Image.ANTIALIAS))
-            # new_image.save(file_path, image_format.upper(), quality=quality)
+            new_image.save(file_path, image_format.upper(), quality=quality)
         except Exception as e:
             return e
-        return new_image
+        return file_path
 
     def close_alpha(self):
         """
