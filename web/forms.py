@@ -7,7 +7,7 @@ class DimensionActionForm(forms.Form):
     subtitle = forms.CharField(max_length=32)
     description = forms.CharField(max_length=256, required=False)
     sort_order = forms.IntegerField(min_value=1)
-    picture = forms.ImageField()
+    picture = forms.ImageField(required=False)
 
 
 class DimensionUpdateForm(forms.Form):

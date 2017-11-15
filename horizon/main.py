@@ -444,6 +444,7 @@ class BaseImage(object):
     def get_perfect_image(self, save_path=None):
         if not save_path:
             save_path = self.save_path
+
         self.close_alpha()
         # 判断图片是否大于限定的最大值
         if self.image_size > self.max_disk_size:
