@@ -299,6 +299,7 @@ class ThemeTypeDetailSerializer(BaseSerializer):
     name = serializers.CharField()
     media_type_id = serializers.IntegerField()
     media_type_name = serializers.CharField()
+    sort_order = serializers.IntegerField()
     status = serializers.IntegerField()
     created = serializers.DateTimeField()
     updated = serializers.DateTimeField()

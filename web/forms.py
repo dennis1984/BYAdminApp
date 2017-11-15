@@ -277,12 +277,14 @@ class MediaTypeListForm(forms.Form):
 class ThemeTypeInputForm(forms.Form):
     name = forms.CharField(max_length=64)
     media_type_id = forms.IntegerField(min_value=1)
+    sort_order = forms.IntegerField(min_value=1, required=False)
 
 
 class ThemeTypeUpdateForm(forms.Form):
     id = forms.IntegerField(min_value=1)
     name = forms.CharField(max_length=64, required=False)
     media_type_id = forms.IntegerField(min_value=1, required=False)
+    sort_order = forms.IntegerField(min_value=1, required=False)
 
 
 class ThemeTypeDeleteForm(forms.Form):
@@ -295,18 +297,20 @@ class ThemeTypeDetailForm(forms.Form):
 
 class ThemeTypeListForm(forms.Form):
     name = forms.CharField(max_length=64, required=False)
-    media_type_id = forms.IntegerField(min_value=1, required=False)
+    media_type_name = forms.CharField(max_length=64)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 
 
 class ProjectProgressInputForm(forms.Form):
     name = forms.CharField(max_length=64)
+    sort_order = forms.IntegerField(min_value=1, required=False)
 
 
 class ProjectProgressUpdateForm(forms.Form):
     id = forms.IntegerField(min_value=1)
     name = forms.CharField(max_length=64, required=False)
+    sort_order = forms.IntegerField(min_value=1, required=False)
 
 
 class ProjectProgressDeleteForm(forms.Form):

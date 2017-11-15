@@ -365,6 +365,8 @@ class AttributeList(generics.GenericAPIView):
     def get_attribute_list(self, **kwargs):
         if 'dimension_name' in kwargs:
             dime_instances = Dimension.filter_objects(name=kwargs['dimension_name'])
+            if isinstance(dime_instances, Exception):
+                return dime_instances
             kwargs['dimension_id__in'] = [ins.id for ins in dime_instances]
             kwargs.pop('dimension_name')
         return Attribute.filter_details(**kwargs)
@@ -878,6 +880,12 @@ class ThemeTypeList(generics.GenericAPIView):
     permission_classes = (IsOwnerOrReadOnly,)
 
     def get_theme_type_detail_list(self, **kwargs):
+        if 'media_type_name' in kwargs:
+            media_type_instances = MediaType.filter_objects(name=kwargs['media_type_name'])
+            if isinstance(media_type_instances, Exception):
+                return media_type_instances
+            kwargs['media_type_id__in'] = [ins.id for ins in media_type_instances]
+            kwargs.pop('media_type_name')
         return ThemeType.filter_details(**kwargs)
 
     def post(self, request, *args, **kwargs):
