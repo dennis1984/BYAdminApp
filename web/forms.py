@@ -251,11 +251,13 @@ class MediaConfigureListForm(forms.Form):
 
 class MediaTypeInputForm(forms.Form):
     name = forms.CharField(max_length=64)
+    sort_order = forms.IntegerField(min_value=1, required=False)
 
 
 class MediaTypeUpdateForm(forms.Form):
     id = forms.IntegerField(min_value=1)
     name = forms.CharField(max_length=64, required=False)
+    sort_order = forms.IntegerField(min_value=1, required=False)
 
 
 class MediaTypeDeleteForm(forms.Form):
