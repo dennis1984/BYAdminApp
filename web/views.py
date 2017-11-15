@@ -363,6 +363,10 @@ class AttributeList(generics.GenericAPIView):
     permission_classes = (IsOwnerOrReadOnly,)
 
     def get_attribute_list(self, **kwargs):
+        if 'dimension_name' in kwargs:
+            dime_instances = Dimension.filter_objects(name=kwargs['dimension_name'])
+            kwargs['dimension_id__in'] = [ins.id for ins in dime_instances]
+            kwargs.pop('dimension_name')
         return Attribute.filter_details(**kwargs)
 
     def post(self, request, *args, **kwargs):

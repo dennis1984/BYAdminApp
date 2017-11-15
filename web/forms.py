@@ -57,7 +57,7 @@ class AttributeDetailForm(forms.Form):
 
 class AttributeListForm(forms.Form):
     name = forms.CharField(max_length=64, required=False)
-    dimension_id = forms.IntegerField(min_value=1, required=False)
+    dimension_name = forms.CharField(max_length=64, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 
