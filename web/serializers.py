@@ -149,19 +149,6 @@ MEDIA_IMAGE_PATH = settings.PICTURE_DIRS['web']['media']
 class MediaSerializer(BaseModelSerializer):
     def __init__(self, instance=None, data=None, **kwargs):
         if data:
-            min_size = (320, 200)
-            media_image = data['picture']
-            try:
-                image_ins = main.BaseImage(image=media_image.image,
-                                           image_size=media_image.size,
-                                           min_size=min_size)
-                data['picture_detail'] = image_ins.get_perfect_image(save_path=MEDIA_IMAGE_PATH)
-                data['picture_profile'] = image_ins.clip_resize(min_size[0],
-                                                                min_size[1],
-                                                                save_path=MEDIA_IMAGE_PATH)
-            except Exception:
-                pass
-            data.pop('picture')
             super(MediaSerializer, self).__init__(data=data, **kwargs)
         else:
             super(MediaSerializer, self).__init__(instance, **kwargs)
@@ -169,6 +156,22 @@ class MediaSerializer(BaseModelSerializer):
     class Meta:
         model = Media
         fields = '__all__'
+
+    def create(self, **kwargs):
+        instance = super(MediaSerializer, self).save(**kwargs)
+        admin_meta = getattr(instance, 'AdminMeta', None)
+        if admin_meta:
+            origin_pic = getattr(admin_meta, 'origin_picture', None)
+            perfect_pic_dict = getattr(admin_meta, 'perfect_picture', None)
+            if origin_pic and perfect_pic_dict:
+                max_disk_size = perfect_pic_dict['max_disk_size']
+                image = main.BaseImage(image_name=getattr(instance, origin_pic).name,
+                                       max_disk_size=max_disk_size)
+                for key_pic, value_pic in perfect_pic_dict['goal_picture'].items():
+                    per_image = image.get_perfect_image(size=value_pic['size'],
+                                                        save_path=value_pic['save_path'])
+                    setattr(instance, key_pic, per_image)
+                instance.save()
 
     def update(self, instance, validated_data):
         pop_keys = ['media_id', 'pk', 'id']

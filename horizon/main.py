@@ -389,8 +389,10 @@ class BaseImage(object):
     min_size = (320, 200)       # 最小分辨率
     postfix_format_dict = {'JPEG': 'jpg',
                            'PNG': 'png'}
+    INIT_NAMES = ['save_path', 'quality', 'image_format', 'max_disk_size',
+                  'max_size', 'min_size']
 
-    def __init__(self, image_name=None, image=None, image_size=0, **kwargs):
+    def __init__(self, image_name=None, image=None, **kwargs):
         if image:
             self.image = image
         else:
@@ -399,36 +401,25 @@ class BaseImage(object):
             except Exception as e:
                 raise Exception(e)
 
-        if not image_size:
-            self.image_size = self.get_image_size(self.image)
-        else:
-            self.image_size = image_size
         for key in kwargs:
+            if key not in self.INIT_NAMES:
+                raise TypeError('Params [%s] is incorrect.' % key)
             if key in ('max_size', 'min_size'):
                 if not isinstance(kwargs[key], (tuple, list)):
                     raise TypeError('Params [max_size, min_size] must be tuple or list.')
             setattr(self, key, kwargs[key])
 
-        # 判断图片分辨率是否太小
-        if self.is_too_small:
-            raise TypeError('The image size is too small.')
+        # # 判断图片分辨率是否太小
+        # if self.is_too_small:
+        #     raise TypeError('The image size is too small.')
 
-    @classmethod
-    def get_image_size(cls, image):
-        buff = cStringIO.StringIO(image.fp.read())
+    @property
+    def image_size(self):
+        self.image.fp.seek(0)
+        buff = cStringIO.StringIO(self.image.fp.read())
         disk_size = len(buff.read())
         buff.close()
         return disk_size
-
-    @classmethod
-    def to_in_memory_uploaded_file(cls, image, field_name, name):
-        disk_size = cls.get_image_size(image)
-        return InMemoryUploadedFile(file=image,
-                                    field_name=field_name,
-                                    name=name,
-                                    content_type='image/%s' % cls.postfix_format_dict[image.format],
-                                    size=disk_size,
-                                    charset='utf8')
 
     @property
     def is_too_small(self):
@@ -441,22 +432,32 @@ class BaseImage(object):
             if self.image.size > self.max_size:
                 return True
 
-    def get_perfect_image(self, save_path=None):
+    def get_perfect_image(self, size=None, save_path=None):
+        """
+        返回图片保存地址
+        """
         if not save_path:
             save_path = self.save_path
 
-        self.close_alpha()
         # 判断图片是否大于限定的最大值
         if self.image_size > self.max_disk_size:
+            self.close_alpha()
             ratio = self.max_disk_size / float(self.image_size)
-            return self.resize(ratio, save_path=save_path)
+            image, save_path = self.resize(ratio)
+            self.image = image
+
+        if not size:
+            return self.image.filename
         else:
-            return self.resize(1, save_path=save_path)
+            image, file_name = self.clip_resize(goal_width=size[0],
+                                                goal_height=size[1],
+                                                save_path=save_path)
+            return file_name
 
     def compress(self, width=0, height=0, image_format=None, save_path=None):
         """
         缩略图
-        返回：新图片的名称（绝对目录）
+        返回：新图片的对象及名称（绝对目录）
         """
         if not save_path:
             save_path = self.save_path
@@ -467,19 +468,19 @@ class BaseImage(object):
         file_path = os.path.join(save_path, file_name)
         new_image = copy.copy(self.image)
         try:
-            new_image.thumbnail(width, height)
+            new_image.thumbnail((width, height))
             new_image.save(file_path, image_format.upper())
         except Exception as e:
             return e
-        return file_path
+        return new_image, file_path
 
     def resize(self, ratio, quality=None, image_format=None, save_path=None):
         """
         等比例缩放
-        返回：新图片的名称（绝对目录）
+        返回：新图片的对象及名称（绝对目录）
         """
-        if ratio > 1:
-            return TypeError('Params [ratio] is incorrect.')
+        if ratio >= 1:
+            return self.image, self.image.filename
 
         if not quality:
             quality = self.quality
@@ -487,21 +488,21 @@ class BaseImage(object):
             save_path = self.save_path
         if not image_format:
             image_format = self.image_format
-        new_image = copy.copy(self.image)
         origin_width, origin_height = self.image.size
 
         file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
                                self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
-        new_image.resize((int(origin_width*ratio), int(origin_height*ratio)), Image.ANTIALIAS)
+        new_image = self.image.resize((int(origin_width*ratio), int(origin_height*ratio)),
+                                      Image.ANTIALIAS)
         new_image.save(file_path, image_format.upper(), quality=quality)
-        return file_path
+        return new_image, file_path
 
     def clip_resize(self, goal_width=0, goal_height=0, image_format=None,
                     quality=None, save_path=None):
         """
         裁决及等比例缩放 
-        返回：新图片的名称（绝对目录）
+        返回：新图片的对象及名称（绝对目录）
         """
         if not image_format:
             image_format = self.image_format
@@ -528,18 +529,17 @@ class BaseImage(object):
             y = 0
             x = (origin_width - width) / 2
 
-        new_image = copy.copy(self.image)
         box = (x, y, width + x, height + y)
         # 剪切图片
-        new_image = new_image.crop(box)
+        new_image = self.image.crop(box)
 
         # 压缩图片
         try:
-            new_image.resize((int(goal_width), int(goal_height), Image.ANTIALIAS))
+            new_image = new_image.resize((int(goal_width), int(goal_height), Image.ANTIALIAS))
             new_image.save(file_path, image_format.upper(), quality=quality)
         except Exception as e:
             return e
-        return file_path
+        return new_image, file_path
 
     def close_alpha(self):
         """
