@@ -157,22 +157,6 @@ class MediaSerializer(BaseModelSerializer):
         model = Media
         fields = '__all__'
 
-    def create_to_db(self, **kwargs):
-        instance = super(MediaSerializer, self).save(**kwargs)
-        admin_meta = getattr(instance, 'AdminMeta', None)
-        if admin_meta:
-            origin_pic = getattr(admin_meta, 'origin_picture', None)
-            perfect_pic_dict = getattr(admin_meta, 'perfect_picture', None)
-            if origin_pic and perfect_pic_dict:
-                max_disk_size = perfect_pic_dict['max_disk_size']
-                image = main.BaseImage(image_name=getattr(instance, origin_pic).name,
-                                       max_disk_size=max_disk_size)
-                for key_pic, value_pic in perfect_pic_dict['goal_picture'].items():
-                    per_image = image.get_perfect_image(size=value_pic['size'],
-                                                        save_path=value_pic['save_path'])
-                    setattr(instance, key_pic, per_image)
-                instance.save()
-
     def update(self, instance, validated_data):
         pop_keys = ['media_id', 'pk', 'id']
         for key in pop_keys:

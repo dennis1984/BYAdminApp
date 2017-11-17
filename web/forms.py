@@ -112,7 +112,9 @@ class TagConfigureDetailForm(forms.Form):
 
 class TagConfigureListForm(forms.Form):
     tag_name = forms.CharField(max_length=64, required=False)
+    tag_id = forms.IntegerField(min_value=1, required=False)
     attribute_name = forms.CharField(max_length=64, required=False)
+    attribute_id = forms.IntegerField(min_value=0, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 
@@ -210,8 +212,7 @@ class MediaUpdateForm(forms.Form):
     mark = forms.ChoiceField(choices=((0, 1),
                                       (1, 2)),
                              required=False)
-    picture_profile = forms.ImageField(required=False)
-    picture_detail = forms.ImageField(required=False)
+    picture = forms.ImageField(required=False)
 
 
 class MediaDetailForm(forms.Form):
@@ -299,6 +300,7 @@ class ThemeTypeDetailForm(forms.Form):
 class ThemeTypeListForm(forms.Form):
     name = forms.CharField(max_length=64, required=False)
     media_type_name = forms.CharField(max_length=64, required=False)
+    media_type_id = forms.IntegerField(min_value=1, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 

@@ -108,6 +108,7 @@ class Media(models.Model):
     class Meta:
         db_table = 'by_media'
         ordering = ['-updated']
+        unique_together = ['title', 'subtitle']
         app_label = 'Web_App.web_media.models.Media'
 
     class AdminMeta:

@@ -201,6 +201,16 @@ class Tag(models.Model):
 
     class AdminMeta:
         fuzzy_fields = ['name']
+        origin_picture = 'picture'
+        perfect_picture = {
+            'max_disk_size': 1 * 1024 * 1024,
+            'goal_picture': {
+                'picture': {
+                    'size': (75, 75),
+                    'save_path': TAG_PICTURE_PATH,
+                },
+            },
+        }
 
     def __unicode__(self):
         return self.name
