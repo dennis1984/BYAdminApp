@@ -463,8 +463,9 @@ class BaseImage(object):
             save_path = self.save_path
         if not image_format:
             image_format = self.image_format
-        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-                               self.postfix_format_dict[image_format])
+        file_name = '%s-%s.%s' % (self.image.filename.split('.', 1)[0],
+                                  make_random_char_and_number_of_string(12),
+                                  self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
         new_image = copy.copy(self.image)
         try:
@@ -490,8 +491,9 @@ class BaseImage(object):
             image_format = self.image_format
         origin_width, origin_height = self.image.size
 
-        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-                               self.postfix_format_dict[image_format])
+        file_name = '%s-%s.%s' % (self.image.filename.split('.', 1)[0],
+                                  make_random_char_and_number_of_string(12),
+                                  self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
         new_image = self.image.resize((int(origin_width*ratio), int(origin_height*ratio)),
                                       Image.ANTIALIAS)
@@ -508,8 +510,9 @@ class BaseImage(object):
             image_format = self.image_format
         if not quality:
             quality = self.quality
-        file_name = '%s.%s' % (make_random_char_and_number_of_string(12),
-                               self.postfix_format_dict[image_format])
+        file_name = '%s-%s.%s' % (self.image.filename.split('.', 1)[0],
+                                  make_random_char_and_number_of_string(12),
+                                  self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
 
         origin_width, origin_height = self.image.size
@@ -535,7 +538,7 @@ class BaseImage(object):
 
         # 压缩图片
         try:
-            new_image = new_image.resize((int(goal_width), int(goal_height), Image.ANTIALIAS))
+            new_image = new_image.resize((int(goal_width), int(goal_height)), Image.ANTIALIAS)
             new_image.save(file_path, image_format.upper(), quality=quality)
         except Exception as e:
             return e
