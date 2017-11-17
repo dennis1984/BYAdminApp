@@ -463,7 +463,7 @@ class BaseImage(object):
             save_path = self.save_path
         if not image_format:
             image_format = self.image_format
-        file_name = '%s-%s.%s' % (self.image.filename.split('.', 1)[0],
+        file_name = '%s_%s.%s' % (self.image.filename.split('.', 1)[0],
                                   make_random_char_and_number_of_string(12),
                                   self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
@@ -491,7 +491,7 @@ class BaseImage(object):
             image_format = self.image_format
         origin_width, origin_height = self.image.size
 
-        file_name = '%s-%s.%s' % (self.image.filename.split('.', 1)[0],
+        file_name = '%s_%s.%s' % (self.image.filename.split('.', 1)[0],
                                   make_random_char_and_number_of_string(12),
                                   self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
@@ -510,7 +510,7 @@ class BaseImage(object):
             image_format = self.image_format
         if not quality:
             quality = self.quality
-        file_name = '%s-%s.%s' % (self.image.filename.split('.', 1)[0],
+        file_name = '%s_%s.%s' % (self.image.filename.split('.', 1)[0],
                                   make_random_char_and_number_of_string(12),
                                   self.postfix_format_dict[image_format])
         file_path = os.path.join(save_path, file_name)
