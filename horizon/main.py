@@ -553,17 +553,15 @@ class BaseImage(object):
                             (0, 0, self.image.size[0], self.image.size[1]),
                             self.image)
 
-            # 关闭Alpha通道
-            # new_file_name = '%s.jpg' % os.path.join(
-            #     os.path.dirname(self.image.filename),
-            #     os.path.basename(self.image.filename).split('.', 1)[0]
-            # )
-            # new_image.save(new_file_name, 'JPEG')
             tmp_image = Image.new('RGB', self.image.size, (255, 255, 255))
             tmp_image.paste(new_image,
                             (0, 0, self.image.size[0], self.image.size[1]),
                             new_image)
-            self.image = tmp_image
-
-
-
+            # 保存图片
+            new_file_name = '%s.jpg' % os.path.join(
+                os.path.dirname(self.image.filename),
+                os.path.basename(self.image.filename).split('.', 1)[0]
+            )
+            tmp_image.save(new_file_name, 'JPEG')
+            image = Image.open(new_file_name)
+            self.image = image

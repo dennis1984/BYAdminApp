@@ -157,7 +157,7 @@ class MediaSerializer(BaseModelSerializer):
         model = Media
         fields = '__all__'
 
-    def create(self, **kwargs):
+    def create_to_db(self, **kwargs):
         instance = super(MediaSerializer, self).save(**kwargs)
         admin_meta = getattr(instance, 'AdminMeta', None)
         if admin_meta:
