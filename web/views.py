@@ -1084,7 +1084,7 @@ class MediaAction(generics.GenericAPIView):
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
         theme_type_ins = self.get_theme_type_object(cld['theme_type_id'])
-        media_type_ins = self.get_media_object(theme_type_ins.media_type_id)
+        media_type_ins = self.get_media_type_object(theme_type_ins.media_type_id)
         if isinstance(media_type_ins, Exception):
             return Response({'Detail': media_type_ins.args}, status=status.HTTP_400_BAD_REQUEST)
 
