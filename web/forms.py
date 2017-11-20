@@ -231,7 +231,7 @@ class MediaListForm(forms.Form):
 
 class MediaConfigureInputForm(forms.Form):
     media_id = forms.IntegerField(min_value=1)
-    dimension_id = forms.IntegerField(min_value=1)
+    # dimension_id = forms.IntegerField(min_value=1)
     attribute_id = forms.IntegerField(min_value=1)
 
 

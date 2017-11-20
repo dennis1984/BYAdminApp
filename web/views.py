@@ -1204,9 +1204,7 @@ class MediaConfigureAction(generics.GenericAPIView):
         return Dimension.get_object(pk=dimension_id)
 
     def get_attribute_object(self, **kwargs):
-        _kwargs = {'pk': kwargs['attribute_id'],
-                   'dimension_id': kwargs['dimension_id']}
-        return Attribute.get_object(**_kwargs)
+        return Attribute.get_object(pk=kwargs['attribute_id'])
 
     def get_media_configure_object(self, media_configure_id):
         return MediaConfigure.get_object(pk=media_configure_id)
@@ -1224,7 +1222,6 @@ class MediaConfigureAction(generics.GenericAPIView):
         serializer = MediaConfigureSerializer(data=cld)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             serializer.save()
         except Exception as e:

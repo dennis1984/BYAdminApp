@@ -112,7 +112,7 @@ class Media(models.Model):
         app_label = 'Web_App.web_media.models.Media'
 
     class AdminMeta:
-        fuzzy_fields = ['name']
+        fuzzy_fields = ['title']
         json_fields = ['tags', 'media_outline']
         origin_picture = 'picture'
         perfect_picture = {
