@@ -289,7 +289,10 @@ class MediaConfigure(models.Model):
 
         details = []
         for ins in instances:
-            details.append(ins.perfect_detail)
+            item_detail = ins.perfect_detail
+            if isinstance(item_detail, Exception):
+                continue
+            details.append(item_detail)
         return details
 
 
