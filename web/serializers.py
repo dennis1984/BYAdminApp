@@ -149,6 +149,12 @@ MEDIA_IMAGE_PATH = settings.PICTURE_DIRS['web']['media']
 class MediaSerializer(BaseModelSerializer):
     def __init__(self, instance=None, data=None, **kwargs):
         if data:
+            if 'media_type_id' in data:
+                data['media_type'] = data.pop('media_type_id')
+            if 'theme_type_id' in data:
+                data['theme_type'] = data.pop('theme_type_id')
+            if 'progress_id' in data:
+                data['progress'] = data.pop('progress_id')
             super(MediaSerializer, self).__init__(data=data, **kwargs)
         else:
             super(MediaSerializer, self).__init__(instance, **kwargs)
@@ -177,10 +183,13 @@ class MediaDetailSerializer(BaseSerializer):
 
     # 资源类型：10：电影 20：电视剧 30：综艺节目
     media_type = serializers.IntegerField()
+    media_type_name = serializers.CharField()
     # 题材类别  1：爱情 2：战争 3：校园 4：真人秀
     theme_type = serializers.IntegerField()
+    theme_type_name = serializers.CharField()
     # 项目进度  1：筹备期 2：策划期 3：xxx
     progress = serializers.IntegerField()
+    progress_name = serializers.CharField()
 
     # 模板类型 1：模板1  2：模板2
     template_type = serializers.IntegerField()

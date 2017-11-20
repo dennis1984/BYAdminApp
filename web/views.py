@@ -1088,6 +1088,7 @@ class MediaAction(generics.GenericAPIView):
         if isinstance(media_type_ins, Exception):
             return Response({'Detail': media_type_ins.args}, status=status.HTTP_400_BAD_REQUEST)
 
+        cld['media_type_id'] = media_type_ins.id
         serializer = MediaSerializer(data=cld)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
