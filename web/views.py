@@ -1317,7 +1317,7 @@ class MediaConfigureList(generics.GenericAPIView):
                 instance = model.get_object(**_kw)
                 if isinstance(instance, Exception):
                     return instance
-                kwargs['media_id'] = instance.id
+                kwargs['%s_id__in' % p_key.split('_')[0]] = instance.id
                 kwargs.pop(p_key)
 
         return MediaConfigure.filter_details(**kwargs)
