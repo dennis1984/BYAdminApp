@@ -46,6 +46,9 @@ class Report(models.Model):
         ordering = ['-updated']
         app_label = 'Web_App.web_reports.models.Report'
 
+    class AdminMeta:
+        json_fields = ['tags']
+
     def __unicode__(self):
         return self.title
 
@@ -62,12 +65,19 @@ class Report(models.Model):
         instance = cls.get_object(**kwargs)
         if isinstance(instance, Exception):
             return instance
+        return instance.perfect_detail
 
-        media_ins = Media.get_object(pk=instance.media_id)
+    @property
+    def perfect_detail(self):
+        media_ins = Media.get_object(pk=self.media_id)
         if isinstance(media_ins, Exception):
             return media_ins
-        detail = model_to_dict(instance)
+
+        detail = model_to_dict(self)
         detail['media_name'] = media_ins.title
+        if self.AdminMeta.json_fields:
+            for json_key in self.AdminMeta.json_fields:
+                detail[json_key] = json.loads(detail[json_key])
         return detail
 
     @classmethod
@@ -86,12 +96,10 @@ class Report(models.Model):
 
         details = []
         for ins in instances:
-            media_ins = Media.get_object(pk=ins.media_id)
-            if isinstance(media_ins, Exception):
+            perfect_detail = ins.perfect_detail
+            if isinstance(perfect_detail, Exception):
                 continue
-            item_detail = model_to_dict(ins)
-            item_detail['media_name'] = media_ins.title
-            details.append(item_detail)
+            details.append(perfect_detail)
         return details
 
 

@@ -155,6 +155,7 @@ def perfect_result(self, _data):
         if isinstance(_fields[key], (Fields.ImageField,
                                      Fields.FileField)):
             image_str = urllib.unquote(_data[key])
+            image_str = image_str.decode('utf8')
             if image_str.startswith('http://') or image_str.startswith('https://'):
                 _data['%s_url' % key] = image_str
             else:
