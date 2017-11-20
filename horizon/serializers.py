@@ -61,6 +61,7 @@ class BaseListSerializer(serializers.ListSerializer):
                 if isinstance(dict_format[key], (models.fields.files.ImageFieldFile,
                                                  models.fields.files.FieldFile)):
                     image_str = urllib.unquote(item[key])
+                    image_str = image_str.decode('utf8')
                     if image_str.startswith('http://') or image_str.startswith('https://'):
                         item['%s_url' % key] = image_str
                     else:

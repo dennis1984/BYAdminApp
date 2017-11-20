@@ -48,6 +48,7 @@ class Report(models.Model):
 
     class AdminMeta:
         json_fields = ['tags']
+        fuzzy_fields = ['title']
 
     def __unicode__(self):
         return self.title
@@ -81,8 +82,13 @@ class Report(models.Model):
         return detail
 
     @classmethod
-    def filter_objects(cls, **kwargs):
+    def filter_objects(cls, fuzzy=True, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
+        if fuzzy:
+            if cls.AdminMeta.fuzzy_fields:
+                for key in kwargs:
+                    if key in cls.AdminMeta.fuzzy_fields:
+                        kwargs['%s__contains' % key] = kwargs.pop(key)
         try:
             return cls.objects.filter(**kwargs)
         except Exception as e:
