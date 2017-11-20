@@ -1314,10 +1314,10 @@ class MediaConfigureList(generics.GenericAPIView):
             if p_key in kwargs:
                 model = model_select_dict[p_key]['model']
                 _kw = model_select_dict[p_key]['selector']
-                instance = model.get_object(**_kw)
-                if isinstance(instance, Exception):
-                    return instance
-                kwargs['%s_id__in' % p_key.split('_')[0]] = instance.id
+                instances = model.filter_objects(**_kw)
+                if isinstance(instances, Exception):
+                    return instances
+                kwargs['%s_id__in' % p_key.split('_')[0]] = [ins.id for ins in instances]
                 kwargs.pop(p_key)
 
         return MediaConfigure.filter_details(**kwargs)
