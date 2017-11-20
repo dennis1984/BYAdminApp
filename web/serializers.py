@@ -183,13 +183,13 @@ class MediaDetailSerializer(BaseSerializer):
 
     # 资源类型：10：电影 20：电视剧 30：综艺节目
     media_type = serializers.IntegerField()
-    media_type_name = serializers.CharField()
+    media_type_name = serializers.CharField(allow_null=True, allow_blank=True)
     # 题材类别  1：爱情 2：战争 3：校园 4：真人秀
     theme_type = serializers.IntegerField()
-    theme_type_name = serializers.CharField()
+    theme_type_name = serializers.CharField(allow_null=True, allow_blank=True)
     # 项目进度  1：筹备期 2：策划期 3：xxx
     progress = serializers.IntegerField()
-    progress_name = serializers.CharField()
+    progress_name = serializers.CharField(allow_null=True, allow_blank=True)
 
     # 模板类型 1：模板1  2：模板2
     template_type = serializers.IntegerField()
@@ -239,9 +239,9 @@ class MediaConfigureDetailSerializer(BaseSerializer):
     media_id = serializers.IntegerField()
     media_name = serializers.CharField()
     dimension_id = serializers.IntegerField()
-    dimension_name = serializers.CharField()
+    dimension_name = serializers.CharField(allow_null=True, allow_blank=True)
     attribute_id = serializers.IntegerField()
-    attribute_name = serializers.CharField()
+    attribute_name = serializers.CharField(allow_null=True, allow_blank=True)
     created = serializers.DateTimeField()
     updated = serializers.DateTimeField()
 

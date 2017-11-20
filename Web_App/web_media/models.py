@@ -263,6 +263,8 @@ class MediaConfigure(models.Model):
             attr_instance_dict[self.attribute_id] = attr_instance
             setattr(self, '_attr_instance_dict', attr_instance_dict)
 
+        if isinstance(media_instance, Exception):
+            return media_instance
         detail = {'media_name': getattr(media_instance, 'title', None),
                   'dimension_id': self.dimension_id,
                   'dimension_name': getattr(dime_instance, 'name', None),
