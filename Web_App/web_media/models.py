@@ -243,7 +243,7 @@ class MediaConfigure(models.Model):
         media_instance = Media.get_object(pk=self.media_id)
         dime_instance = Dimension.get_object(pk=self.dimension_id)
         attr_instance = Attribute.get_object(pk=self.attribute_id)
-        detail = {'media_name': media_instance.name,
+        detail = {'media_name': media_instance.title,
                   'dimension_id': self.dimension_id,
                   'dimension_name': dime_instance.name,
                   'attribute_id': self.attribute_id,

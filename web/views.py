@@ -1217,10 +1217,10 @@ class MediaConfigureAction(generics.GenericAPIView):
     def is_request_data_valid(self, **kwargs):
         media_instance = Media.get_object(pk=kwargs['media_id'])
         if isinstance(media_instance, Exception):
-            return False, media_instance
+            return False, media_instance.args
         attr_instance = self.get_attribute_object(kwargs['attribute_id'])
         if isinstance(attr_instance, Exception):
-            return False, attr_instance
+            return False, attr_instance.args
         return True, None
 
     def get_media_configure_object(self, media_configure_id):
@@ -1286,6 +1286,9 @@ class MediaConfigureDetail(generics.GenericAPIView):
 
         cld = form.cleaned_data
         detail = self.get_media_configure_detail(cld['id'])
+        if isinstance(detail, Exception):
+            return Response({'Detail': detail.args}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = MediaConfigureDetailSerializer(data=detail)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
