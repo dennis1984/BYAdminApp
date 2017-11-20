@@ -108,7 +108,7 @@ class Media(models.Model):
     class Meta:
         db_table = 'by_media'
         ordering = ['-updated']
-        unique_together = ['title', 'subtitle']
+        unique_together = ['title', 'subtitle', 'status']
         app_label = 'Web_App.web_media.models.Media'
 
     class AdminMeta:
@@ -145,7 +145,7 @@ class Media(models.Model):
         instance = cls.get_object(**kwargs)
         if isinstance(instance, Exception):
             return instance
-        return instance
+        return instance.perfect_detail
 
     @property
     def perfect_detail(self):
@@ -153,6 +153,25 @@ class Media(models.Model):
         for key in detail.keys():
             if key in self.AdminMeta.json_fields:
                 detail[key] = json.loads(detail[key])
+
+        media_type_dict = getattr(self, 'media_type_dict', {})
+        theme_type_dict = getattr(self, 'theme_type_dict', {})
+        progress_dict = getattr(self, 'progress_dict', {})
+        media_type_ins = media_type_dict.get(self.media_type)
+        if not media_type_ins:
+            media_type_ins = MediaType.get_object(pk=self.media_type)
+            media_type_dict[self.media_type] = media_type_ins
+        theme_type_ins = theme_type_dict.get(self.theme_type)
+        if not theme_type_ins:
+            theme_type_ins = ThemeType.get_object(pk=self.theme_type)
+            theme_type_dict[self.theme_type] = theme_type_ins
+        progress_ins = progress_dict.get(self.progress)
+        if not progress_ins:
+            progress_ins = ProjectProgress.get_object(pk=self.progress)
+            progress_dict[self.progress] = progress_ins
+        detail['media_type_name'] = getattr(media_type_ins, 'name', None)
+        detail['theme_type_name'] = getattr(theme_type_ins, 'name', None)
+        detail['progress_name'] = getattr(progress_ins, 'name', None)
         return detail
 
     @classmethod

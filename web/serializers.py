@@ -184,10 +184,8 @@ class MediaDetailSerializer(BaseSerializer):
 
     # 模板类型 1：模板1  2：模板2
     template_type = serializers.IntegerField()
-    # 资源概要展示类型：1：电影、剧集  2：综艺、活动
-    outline_type = serializers.IntegerField()
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
-    tags = serializers.CharField()
+    tags = serializers.ListField()
 
     # 资源热度
     temperature = serializers.FloatField()
@@ -199,7 +197,7 @@ class MediaDetailSerializer(BaseSerializer):
     # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
     #                                        "主演": ["成龙", "李连杰"],
     #                                        "出演": ["巩俐", "章子怡"], ......}
-    media_outline = serializers.CharField()
+    media_outline = serializers.DictField()
 
     # 预计上映/播出时间
     air_time = serializers.DateTimeField()

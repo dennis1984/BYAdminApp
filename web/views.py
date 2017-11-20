@@ -1137,7 +1137,7 @@ class MediaAction(generics.GenericAPIView):
             serializer.delete(instance)
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class MediaDetail(generics.GenericAPIView):
