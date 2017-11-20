@@ -154,21 +154,24 @@ class Media(models.Model):
             if key in self.AdminMeta.json_fields:
                 detail[key] = json.loads(detail[key])
 
-        media_type_dict = getattr(self, 'media_type_dict', {})
-        theme_type_dict = getattr(self, 'theme_type_dict', {})
-        progress_dict = getattr(self, 'progress_dict', {})
+        media_type_dict = getattr(self, '_media_type_dict', {})
+        theme_type_dict = getattr(self, '_theme_type_dict', {})
+        progress_dict = getattr(self, '_progress_dict', {})
         media_type_ins = media_type_dict.get(self.media_type)
         if not media_type_ins:
             media_type_ins = MediaType.get_object(pk=self.media_type)
             media_type_dict[self.media_type] = media_type_ins
+            setattr(self, '_media_type_dict', media_type_dict)
         theme_type_ins = theme_type_dict.get(self.theme_type)
         if not theme_type_ins:
             theme_type_ins = ThemeType.get_object(pk=self.theme_type)
             theme_type_dict[self.theme_type] = theme_type_ins
+            setattr(self, '_theme_type_dict', theme_type_dict)
         progress_ins = progress_dict.get(self.progress)
         if not progress_ins:
             progress_ins = ProjectProgress.get_object(pk=self.progress)
             progress_dict[self.progress] = progress_ins
+            setattr(self, '_progress_dict', progress_dict)
         detail['media_type_name'] = getattr(media_type_ins, 'name', None)
         detail['theme_type_name'] = getattr(theme_type_ins, 'name', None)
         detail['progress_name'] = getattr(progress_ins, 'name', None)
@@ -240,9 +243,26 @@ class MediaConfigure(models.Model):
 
     @property
     def perfect_detail(self):
-        media_instance = Media.get_object(pk=self.media_id)
-        dime_instance = Dimension.get_object(pk=self.dimension_id)
-        attr_instance = Attribute.get_object(pk=self.attribute_id)
+        media_instance_dict = getattr(self, '_media_instance_dict', {})
+        dime_instance_dict = getattr(self, '_dime_instance_dict', {})
+        attr_instance_dict = getattr(self, '_attr_instance_dict', {})
+
+        media_instance = media_instance_dict.get(self.media_id)
+        if not media_instance:
+            media_instance = Media.get_object(pk=self.media_id)
+            media_instance_dict[self.media_id] = media_instance
+            setattr(self, '_media_instance_dict', media_instance_dict)
+        dime_instance = dime_instance_dict.get(self.dimension_id)
+        if not dime_instance:
+            dime_instance = Dimension.get_object(pk=self.dimension_id)
+            dime_instance_dict[self.dimension_id] = dime_instance
+            setattr(self, '_dime_instance_dict', dime_instance_dict)
+        attr_instance = attr_instance_dict.get(self.attribute_id)
+        if not attr_instance:
+            attr_instance = Attribute.get_object(pk=self.attribute_id)
+            attr_instance_dict[self.attribute_id] = attr_instance
+            setattr(self, '_attr_instance_dict', attr_instance_dict)
+
         detail = {'media_name': media_instance.title,
                   'dimension_id': self.dimension_id,
                   'dimension_name': dime_instance.name,
