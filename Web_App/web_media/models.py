@@ -133,8 +133,12 @@ class Media(models.Model):
         return self.title
 
     @classmethod
-    def get_object(cls, **kwargs):
+    def get_object(cls, fuzzy=True, **kwargs):
         kwargs = get_perfect_filter_params(cls, **kwargs)
+        if fuzzy:
+            for key in kwargs:
+                if key in cls.AdminMeta.fuzzy_fields:
+                    kwargs['%s__contains' % key] = kwargs.pop(key)
         try:
             return cls.objects.get(**kwargs)
         except Exception as e:
