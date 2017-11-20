@@ -263,11 +263,11 @@ class MediaConfigure(models.Model):
             attr_instance_dict[self.attribute_id] = attr_instance
             setattr(self, '_attr_instance_dict', attr_instance_dict)
 
-        detail = {'media_name': media_instance.title,
+        detail = {'media_name': getattr(media_instance, 'title', None),
                   'dimension_id': self.dimension_id,
-                  'dimension_name': dime_instance.name,
+                  'dimension_name': getattr(dime_instance, 'name', None),
                   'attribute_id': self.attribute_id,
-                  'attribute_name': attr_instance.name}
+                  'attribute_name': getattr(attr_instance, 'name', None)}
         detail.update(**model_to_dict(self))
         return detail
 
