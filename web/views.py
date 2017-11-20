@@ -1203,8 +1203,25 @@ class MediaConfigureAction(generics.GenericAPIView):
     def get_dimension_object(self, dimension_id):
         return Dimension.get_object(pk=dimension_id)
 
-    def get_attribute_object(self, **kwargs):
-        return Attribute.get_object(pk=kwargs['attribute_id'])
+    def get_attribute_object(self, attribute_id):
+        return Attribute.get_object(pk=attribute_id)
+
+    def get_perfect_request_data(self, **kwargs):
+        attr_instance = self.get_attribute_object(kwargs['attribute_id'])
+        dime_instance = self.get_dimension_object(attr_instance.dimension_id)
+        if isinstance(dime_instance, Exception):
+            return dime_instance
+        kwargs['dimension_id'] = dime_instance.pk
+        return kwargs
+
+    def is_request_data_valid(self, **kwargs):
+        media_instance = Media.get_object(pk=kwargs['media_id'])
+        if isinstance(media_instance, Exception):
+            return False, media_instance
+        attr_instance = self.get_attribute_object(kwargs['attribute_id'])
+        if isinstance(attr_instance, Exception):
+            return False, attr_instance
+        return True, None
 
     def get_media_configure_object(self, media_configure_id):
         return MediaConfigure.get_object(pk=media_configure_id)
@@ -1215,9 +1232,13 @@ class MediaConfigureAction(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        attr_instance = self.get_attribute_object(**cld)
-        if isinstance(attr_instance, Exception):
-            return Response({'Detail': attr_instance.args}, status=status.HTTP_400_BAD_REQUEST)
+        is_valid, error_message = self.is_request_data_valid(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = self.get_perfect_request_data(**cld)
+        if isinstance(cld, Exception):
+            return Response({'Detail': cld.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = MediaConfigureSerializer(data=cld)
         if not serializer.is_valid():
