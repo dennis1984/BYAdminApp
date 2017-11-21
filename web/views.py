@@ -1621,7 +1621,7 @@ class ReplyCommentAction(generics.GenericAPIView):
         if not is_valid:
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = ReplyCommentSerializer(request, data=cld)
+        serializer = ReplyCommentSerializer(data=cld, request=request)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         comment_serializer = CommentSerializer(comment_ins)
@@ -1642,8 +1642,8 @@ class ReplyCommentAction(generics.GenericAPIView):
          reply_ins, error_message) = self.is_request_data_valid(method='update', **cld)
         if not is_valid:
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
-        if isinstance(reply_ins, Exception):
-            return Response({'Detail': reply_ins.args}, status=status.HTTP_400_BAD_REQUEST)
+        # if isinstance(reply_ins, Exception):
+        #     return Response({'Detail': reply_ins.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = ReplyCommentSerializer(reply_ins)
         try:
@@ -1659,7 +1659,7 @@ class ReplyCommentAction(generics.GenericAPIView):
 
         cld = form.cleaned_data
         (is_valid, comment_ins,
-         reply_ins, error_message) = self.is_request_data_valid(method='update', **cld)
+         reply_ins, error_message) = self.is_request_data_valid(method='delete', **cld)
         if not is_valid:
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
         if isinstance(reply_ins, Exception):

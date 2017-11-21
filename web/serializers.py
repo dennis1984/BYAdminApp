@@ -394,9 +394,9 @@ class CommentSerializer(BaseModelSerializer):
 
 
 class ReplyCommentSerializer(BaseModelSerializer):
-    def __init__(self, request, instance=None, data=None, **kwargs):
+    def __init__(self, instance=None, data=None, request=None, **kwargs):
         if data:
-            data['user_id'] = request.user_id
+            data['user_id'] = request.user.id
             super(ReplyCommentSerializer, self).__init__(data=data, **kwargs)
         else:
             super(ReplyCommentSerializer, self).__init__(instance, **kwargs)
