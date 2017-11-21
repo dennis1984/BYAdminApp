@@ -428,6 +428,8 @@ class CommentAndReplyDetailSerializer(BaseSerializer):
     dislike = serializers.IntegerField()
     reply_message = serializers.CharField()
     source_title = serializers.CharField()
+    created_for_user = serializers.DateTimeField()
+    created_for_admin = serializers.DateTimeField()
 
 
 class CommentAndReplyListSerializer(BaseListSerializer):

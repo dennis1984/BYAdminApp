@@ -72,9 +72,11 @@ class Comment(models.Model):
     def perfect_detail(self):
         is_recommend = self.is_recommend
         reply_message = ''
+        created_for_admin = None
         if is_recommend:
             reply = ReplyComment.get_object(comment_id=self.pk)
             reply_message = reply.message
+            created_for_admin = reply.updated
         source_ins = self.get_source_object(source_type=self.source_type,
                                             source_id=self.source_id)
         if isinstance(source_ins, Exception):
@@ -85,6 +87,8 @@ class Comment(models.Model):
         item_dict['is_recommend'] = is_recommend
         item_dict['reply_message'] = reply_message
         item_dict['source_title'] = source_title
+        item_dict['created_for_user'] = item_dict['created']
+        item_dict['created_for_admin'] = created_for_admin
         return item_dict
 
     @classmethod
