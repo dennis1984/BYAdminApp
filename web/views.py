@@ -1798,8 +1798,6 @@ class InformationAction(generics.GenericAPIView):
             return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = InformationSerializer(instance)
-        if not serializer.is_valid():
-            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
             serializer.delete(instance)
         except Exception as e:
@@ -1890,7 +1888,7 @@ class CaseAction(generics.GenericAPIView):
         if not is_valid:
             return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = InformationSerializer(data=cld)
+        serializer = CaseSerializer(data=cld)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
@@ -1930,8 +1928,6 @@ class CaseAction(generics.GenericAPIView):
             return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = CaseSerializer(instance)
-        if not serializer.is_valid():
-            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
             serializer.delete(instance)
         except Exception as e:

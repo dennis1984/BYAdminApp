@@ -14,7 +14,6 @@ from Web_App.web_dimensions.models import (Dimension,
                                            Attribute,
                                            TagConfigure,
                                            Tag)
-
 import json
 import datetime
 import os
@@ -617,8 +616,18 @@ class Information(models.Model):
     @property
     def perfect_detail(self):
         detail = model_to_dict(self)
-        detail['tags'] = json.loads(detail['tags'])
+        tag_ids = json.loads(detail['tags'])
+        detail['tags'] = self.get_perfect_tags(tag_ids)
         return detail
+
+    def get_perfect_tags(self, tag_ids):
+        tag_details = []
+        for tag_id in tag_ids:
+            tag = ResourceTags.get_object(pk=tag_id)
+            if isinstance(tag, Exception):
+                continue
+            tag_details.append(tag.name)
+        return tag_details
 
     @classmethod
     def filter_objects(cls, fuzzy=True, **kwargs):
@@ -699,8 +708,18 @@ class Case(models.Model):
     @property
     def perfect_detail(self):
         detail = model_to_dict(self)
-        detail['tags'] = json.loads(detail['tags'])
+        tag_ids = json.loads(detail['tags'])
+        detail['tags'] = self.get_perfect_tags(tag_ids)
         return detail
+
+    def get_perfect_tags(self, tag_ids):
+        tag_details = []
+        for tag_id in tag_ids:
+            tag = ResourceTags.get_object(pk=tag_id)
+            if isinstance(tag, Exception):
+                continue
+            tag_details.append(tag.name)
+        return tag_details
 
     @classmethod
     def filter_objects(cls, fuzzy=True, **kwargs):
