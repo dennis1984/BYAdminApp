@@ -155,7 +155,7 @@ class Media(models.Model):
         detail = model_to_dict(self)
         for key in detail.keys():
             if key in self.AdminMeta.json_fields:
-                if key == 'tag':
+                if key == 'tags':
                     tag_ids = json.loads(detail[key])
                     detail[key] = self.get_perfect_tags(tag_ids)
                 else:

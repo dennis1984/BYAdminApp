@@ -122,7 +122,7 @@ class TagConfigureListForm(forms.Form):
 class MediaInputForm(forms.Form):
     title = forms.CharField(max_length=128)
     subtitle = forms.CharField(max_length=128)
-    description = forms.CharField()
+    description = forms.CharField(required=False)
 
     template_type = forms.ChoiceField(choices=((1, 1),
                                                (2, 2)),
@@ -177,7 +177,7 @@ class MediaInputForm(forms.Form):
                                  'required': 'mark must in [0, 1]'
                              })
 
-    picture = forms.ImageField()
+    picture = forms.ImageField(required=False)
 
 
 class MediaUpdateForm(forms.Form):
