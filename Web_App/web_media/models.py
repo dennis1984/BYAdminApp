@@ -155,7 +155,11 @@ class Media(models.Model):
         detail = model_to_dict(self)
         for key in detail.keys():
             if key in self.AdminMeta.json_fields:
-                detail[key] = json.loads(detail[key])
+                if key == 'tag':
+                    tag_ids = json.loads(detail[key])
+                    detail[key] = self.get_perfect_tags(tag_ids)
+                else:
+                    detail[key] = json.loads(detail[key])
 
         media_type_dict = getattr(self, '_media_type_dict', {})
         theme_type_dict = getattr(self, '_theme_type_dict', {})
@@ -179,6 +183,15 @@ class Media(models.Model):
         detail['theme_type_name'] = getattr(theme_type_ins, 'name', None)
         detail['progress_name'] = getattr(progress_ins, 'name', None)
         return detail
+
+    def get_perfect_tags(self, tag_ids):
+        tag_details = []
+        for tag_id in tag_ids:
+            tag = ResourceTags.get_object(pk=tag_id)
+            if isinstance(tag, Exception):
+                continue
+            tag_details.append(tag.name)
+        return tag_details
 
     @classmethod
     def filter_objects(cls, fuzzy=True, **kwargs):

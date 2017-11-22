@@ -129,7 +129,7 @@ class MediaInputForm(forms.Form):
                                       error_messages={
                                           'required': 'Template type must in [1, 2]'
                                       })
-    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    # 标签：数据格式为JSON字符串，如：[1, 2, 3]  (值为标签ID)
     tags = forms.CharField()
 
     # 资源热度
@@ -160,9 +160,9 @@ class MediaInputForm(forms.Form):
     # # 预计开机/录制时间
     # recorded_time = forms.DateTimeField()
 
-    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
-    #                                        "主演": ["成龙", "李连杰"],
-    #                                        "出演": ["巩俐", "章子怡"], ......}
+    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": "冯小刚, 吴宇森",
+    #                                        "主演": "成龙, 李连杰",
+    #                                        "出演": "巩俐, 章子怡", ......}
     media_outline = forms.CharField()
 
     # 预计上映/播出时间
@@ -189,7 +189,7 @@ class MediaUpdateForm(forms.Form):
     template_type = forms.ChoiceField(choices=((1, 1),
                                                (2, 2)),
                                       required=False)
-    # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
+    # 标签：数据格式为JSON字符串，如：[1, 2, 3]  (值为标签ID)
     tags = forms.CharField(required=False)
     # 资源热度
     temperature = forms.FloatField(min_value=0.1, max_value=10.0, required=False)
@@ -202,9 +202,9 @@ class MediaUpdateForm(forms.Form):
     # 项目进度
     progress_id = forms.IntegerField(min_value=1, required=False)
 
-    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
-    #                                        "主演": ["成龙", "李连杰"],
-    #                                        "出演": ["巩俐", "章子怡"], ......}
+    # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": "冯小刚, 吴宇森",
+    #                                        "主演": "成龙, 李连杰",
+    #                                        "出演": "巩俐, 章子怡", ......}
     media_outline = forms.CharField(required=False)
     # 预计上映/播出时间
     air_time = forms.DateTimeField(required=False)
