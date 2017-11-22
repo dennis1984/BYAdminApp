@@ -389,6 +389,7 @@ class ReportDetailForm(forms.Form):
 class ReportListForm(forms.Form):
     title = forms.CharField(max_length=32, required=False)
     media_name = forms.CharField(max_length=32, required=False)
+    media_id = forms.IntegerField(min_value=1, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
 

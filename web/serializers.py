@@ -426,10 +426,10 @@ class CommentAndReplyDetailSerializer(BaseSerializer):
     is_recommend = serializers.IntegerField()
     like = serializers.IntegerField()
     dislike = serializers.IntegerField()
-    reply_message = serializers.CharField()
+    reply_message = serializers.CharField(allow_null=True, allow_blank=True)
     source_title = serializers.CharField()
     created_for_user = serializers.DateTimeField()
-    created_for_admin = serializers.DateTimeField()
+    created_for_admin = serializers.DateTimeField(allow_null=True)
 
 
 class CommentAndReplyListSerializer(BaseListSerializer):
