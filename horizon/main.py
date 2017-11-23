@@ -443,8 +443,10 @@ class BaseImage(object):
         if self.image_size > self.max_disk_size:
             self.close_alpha()
             ratio = self.max_disk_size / float(self.image_size)
-            image, save_path = self.resize(ratio)
-            self.image = image
+            image, file_name = self.resize(ratio)
+            if self.image is not image:
+                image_new = Image.open(file_name)
+                self.image = image_new
 
         if not size:
             return self.image.filename
