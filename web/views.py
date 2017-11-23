@@ -1753,7 +1753,7 @@ class InformationAction(generics.GenericAPIView):
         return Information.get_object(pk=information_id)
 
     def post(self, request, *args, **kwargs):
-        form = InformationInputForm(request.data)
+        form = InformationInputForm(request.data, request.FILES)
         if not form.is_valid():
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1766,13 +1766,13 @@ class InformationAction(generics.GenericAPIView):
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            serializer.save()
+            serializer.create_to_db()
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
-        form = InformationUpdateForm(request.data)
+        form = InformationUpdateForm(request.data, request.FILES)
         if not form.is_valid():
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1883,7 +1883,7 @@ class CaseAction(generics.GenericAPIView):
         return Case.get_object(pk=case_id)
 
     def post(self, request, *args, **kwargs):
-        form = CaseInputForm(request.data)
+        form = CaseInputForm(request.data, request.FILES)
         if not form.is_valid():
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -1896,13 +1896,13 @@ class CaseAction(generics.GenericAPIView):
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            serializer.save()
+            serializer.create_to_db()
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
-        form = CaseUpdateForm(request.data)
+        form = CaseUpdateForm(request.data, request.FILES)
         if not form.is_valid():
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
