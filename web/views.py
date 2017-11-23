@@ -41,7 +41,9 @@ from web.serializers import (DimensionSerializer,
                              CaseListSerializer,
                              MediaSerializer,
                              MediaDetailSerializer,
-                             MediaListSerializer)
+                             MediaListSerializer,
+                             UserRoleSerializer,
+                             UserRoleListSerializer)
 from web.permissions import IsOwnerOrReadOnly
 from web.forms import (DimensionActionForm,
                        DimensionUpdateForm,
@@ -111,7 +113,12 @@ from web.forms import (DimensionActionForm,
                        MediaUpdateForm,
                        MediaDeleteForm,
                        MediaDetailForm,
-                       MediaListForm)
+                       MediaListForm,
+                       UserRoleInputForm,
+                       UserRoleUpdateForm,
+                       UserRoleDeleteForm,
+                       UserRoleDetailForm,
+                       UserRoleListForm)
 from Web_App.web_dimensions.models import (Dimension,
                                            Attribute,
                                            Tag,
@@ -124,6 +131,7 @@ from Web_App.web_media.models import (Media,
                                       Information, Case)
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
+from Web_App.web_users.models import Role
 
 from horizon.views import APIView
 from horizon.main import make_random_number_of_string
@@ -1982,3 +1990,111 @@ class CaseList(generics.GenericAPIView):
         if isinstance(list_data, Exception):
             return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(list_data, status=status.HTTP_200_OK)
+
+
+class UserRoleAction(generics.GenericAPIView):
+    """
+    用户角色操作
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_user_role_object(self, role_id):
+        return Role.get_object(pk=role_id)
+
+    def post(self, request, *args, **kwargs):
+        form = UserRoleInputForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        serializer = UserRoleSerializer(data=cld)
+        if not serializer.is_valid():
+            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.save()
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def put(self, request, *args, **kwargs):
+        form = UserRoleUpdateForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_user_role_object(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = UserRoleSerializer(instance)
+        try:
+            serializer.update(instance, cld)
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        form = UserRoleDeleteForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_user_role_object(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = UserRoleSerializer(instance)
+        try:
+            serializer.delete(instance)
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserRoleDetail(generics.GenericAPIView):
+    """
+    用户角色详情
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_user_role_object(self, role_id):
+        return Role.get_object(pk=role_id)
+
+    def post(self, request, *args, **kwargs):
+        form = UserRoleDetailForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_user_role_object(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = UserRoleSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserRoleList(generics.GenericAPIView):
+    """
+    用户角色详情列表
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_user_role_list(self, **kwargs):
+        return Role.filter_objects(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = UserRoleListForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instances = self.get_user_role_list(**cld)
+        if isinstance(instances, Exception):
+            return Response({'Detail': instances.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = UserRoleListSerializer(instances)
+        list_data = serializer.list_data(**cld)
+        if isinstance(list_data, Exception):
+            return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(list_data, status=status.HTTP_200_OK)
+

@@ -23,6 +23,7 @@ from Web_App.web_media.models import (Media, MediaConfigure,
                                       Information, Case)
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
+from Web_App.web_users.models import Role
 
 import urllib
 import os
@@ -508,3 +509,13 @@ class CaseDetailSerializer(BaseSerializer):
 
 class CaseListSerializer(BaseListSerializer):
     child = CaseDetailSerializer()
+
+
+class UserRoleSerializer(BaseModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+
+class UserRoleListSerializer(BaseListSerializer):
+    child = UserRoleSerializer()

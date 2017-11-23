@@ -73,7 +73,12 @@ urlpatterns = [
     # 案例
     url(r'^case_action/$', views.CaseAction.as_view()),
     url(r'^case_detail/$', views.CaseDetail.as_view()),
-    url(r'^case_list/$', views.CaseList.as_view())
+    url(r'^case_list/$', views.CaseList.as_view()),
+
+    # 用户角色
+    url(r'^user_role_action/$', views.UserRoleAction.as_view()),
+    url(r'^user_role_detail/$', views.UserRoleDetail.as_view()),
+    url(r'^user_role_list/$', views.UserRoleList.as_view())
 
 ]
 

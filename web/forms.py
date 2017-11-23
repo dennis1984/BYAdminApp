@@ -481,3 +481,26 @@ class CaseListForm(forms.Form):
     title = forms.CharField(max_length=128, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
+
+
+class UserRoleInputForm(forms.Form):
+    name = forms.CharField(max_length=32)
+
+
+class UserRoleUpdateForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+    name = forms.CharField(max_length=32, required=False)
+
+
+class UserRoleDeleteForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class UserRoleDetailForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class UserRoleListForm(forms.Form):
+    name = forms.CharField(max_length=32, required=False)
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)
