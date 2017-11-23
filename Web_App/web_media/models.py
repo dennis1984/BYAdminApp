@@ -610,6 +610,16 @@ class Information(models.Model):
 
     class AdminMeta:
         fuzzy_fields = ['title']
+        origin_picture = 'picture'
+        perfect_picture = {
+            'max_disk_size': 1 * 1024 * 1024,
+            'goal_picture': {
+                'picture': {
+                    'size': None,
+                    'save_path': MEDIA_PICTURE_PATH,
+                },
+            },
+        }
 
     def __unicode__(self):
         return self.title
@@ -705,6 +715,16 @@ class Case(models.Model):
 
     class AdminMeta:
         fuzzy_fields = ['title']
+        origin_picture = 'picture'
+        perfect_picture = {
+            'max_disk_size': 1 * 1024 * 1024,
+            'goal_picture': {
+                'picture': {
+                    'size': None,
+                    'save_path': MEDIA_PICTURE_PATH,
+                },
+            },
+        }
 
     def __unicode__(self):
         return self.title
