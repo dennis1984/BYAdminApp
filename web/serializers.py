@@ -457,9 +457,10 @@ class InformationSerializer(BaseModelSerializer):
 class InformationDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
-    subtitle = serializers.CharField()
-    description = serializers.CharField()
+    subtitle = serializers.CharField(allow_null=True, allow_blank=True)
+    description = serializers.CharField(allow_null=True, allow_blank=True)
     content = serializers.CharField()
+    picture = serializers.ImageField()
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = serializers.ListField()
     # 浏览数
@@ -494,9 +495,10 @@ class CaseSerializer(BaseModelSerializer):
 class CaseDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
-    subtitle = serializers.CharField()
-    description = serializers.CharField()
+    subtitle = serializers.CharField(allow_null=True, allow_blank=True)
+    description = serializers.CharField(allow_null=True, allow_blank=True)
     content = serializers.CharField()
+    picture = serializers.ImageField()
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = serializers.ListField()
     # 浏览数
