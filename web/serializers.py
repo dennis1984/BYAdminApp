@@ -516,6 +516,17 @@ class UserRoleSerializer(BaseModelSerializer):
         model = Role
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+        pop_keys = ['user_role_id', 'pk', 'id']
+        for key in pop_keys:
+            if key in validated_data:
+                validated_data.pop(key)
+        return super(UserRoleSerializer, self).update(instance, validated_data)
+
+    def delete(self, instance):
+        validated_data = {'status': instance.id + 1}
+        return super(UserRoleSerializer, self).update(instance, validated_data)
+
 
 class UserRoleListSerializer(BaseListSerializer):
     child = UserRoleSerializer()

@@ -422,6 +422,7 @@ class InformationInputForm(forms.Form):
     subtitle = forms.CharField(max_length=128, required=False)
     description = forms.CharField(required=False)
     content = forms.CharField()
+    picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256)
 
@@ -432,6 +433,7 @@ class InformationUpdateForm(forms.Form):
     subtitle = forms.CharField(max_length=128, required=False)
     description = forms.CharField(required=False)
     content = forms.CharField(required=False)
+    picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256, required=False)
 
@@ -455,6 +457,7 @@ class CaseInputForm(forms.Form):
     subtitle = forms.CharField(max_length=128, required=False)
     description = forms.CharField(required=False)
     content = forms.CharField()
+    picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256)
 
@@ -465,6 +468,7 @@ class CaseUpdateForm(forms.Form):
     subtitle = forms.CharField(max_length=128, required=False)
     description = forms.CharField(required=False)
     content = forms.CharField(required=False)
+    picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256, required=False)
 
