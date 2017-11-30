@@ -222,7 +222,7 @@ class MediaDetailSerializer(BaseSerializer):
     #                                                "女主角号召力": 4.2,
     #                                                "类型关注度": 3.8,
     #                                                "片方指数": 3.7}
-    film_performance = serializers.CharField()
+    film_performance = serializers.DictField()
 
     picture_profile = serializers.ImageField()
     picture_detail = serializers.ImageField()
