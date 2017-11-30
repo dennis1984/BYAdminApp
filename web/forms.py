@@ -138,6 +138,8 @@ class MediaInputForm(forms.Form):
     box_office_forecast = forms.FloatField(min_value=0.1, max_value=5.0)
     # 口碑预测
     public_praise_forecast = forms.FloatField(min_value=0.1, max_value=5.0)
+    # ROI 投资回报比 例如：1：5 （1比5）
+    roi = forms.CharField(max_length=10)
 
     # # 资源类型
     # media_type_id = forms.IntegerField(min_value=1)
@@ -177,6 +179,13 @@ class MediaInputForm(forms.Form):
                                  'required': 'mark must in [0, 1]'
                              })
 
+    # 电影表现大数据分析 数据格式为字典形式的JSON字符串，如：{"导演号召力": 3.5,
+    #                                                "男主角号召力": 4.0,
+    #                                                "女主角号召力": 4.2,
+    #                                                "类型关注度": 3.8,
+    #                                                "片方指数": 3.7}
+    film_performance = forms.CharField(max_length=512)
+
     picture = forms.ImageField(required=False)
 
 
@@ -197,6 +206,8 @@ class MediaUpdateForm(forms.Form):
     box_office_forecast = forms.FloatField(min_value=0.1, max_value=5.0, required=False)
     # 口碑预测
     public_praise_forecast = forms.FloatField(min_value=0.1, max_value=5.0, required=False)
+    # ROI 投资回报比 例如：1：5 （1比5）
+    roi = forms.CharField(max_length=10, required=False)
     # 题材类别
     theme_type_id = forms.IntegerField(min_value=1, required=False)
     # 项目进度
@@ -212,6 +223,12 @@ class MediaUpdateForm(forms.Form):
     mark = forms.ChoiceField(choices=((0, 1),
                                       (1, 2)),
                              required=False)
+    # 电影表现大数据分析 数据格式为字典形式的JSON字符串，如：{"导演号召力": 3.5,
+    #                                                "男主角号召力": 4.0,
+    #                                                "女主角号召力": 4.2,
+    #                                                "类型关注度": 3.8,
+    #                                                "片方指数": 3.7}
+    film_performance = forms.CharField(max_length=512, required=False)
     picture = forms.ImageField(required=False)
 
 
