@@ -121,7 +121,7 @@ class Media(models.Model):
 
     class AdminMeta:
         fuzzy_fields = ['title']
-        json_fields = ['tags', 'media_outline', 'file_performance']
+        json_fields = ['tags', 'media_outline', 'film_performance']
         origin_picture = 'picture'
         perfect_picture = {
             'max_disk_size': 1*1024*1024,
