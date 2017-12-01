@@ -61,8 +61,7 @@ class IdentifyingCodeAction(APIView):
 
     def send_identifying_code(self, identifying_code, username):
         # 发送到短信平台
-        main.send_message_to_phone({'code': identifying_code},
-                                   (username,))
+        main.send_phone_message_for_5_platform(identifying_code, username)
 
     def post(self, request, *args, **kwargs):
         """
@@ -97,8 +96,7 @@ class IdentifyingCodeActionWithLogin(generics.GenericAPIView):
 
     def send_identifying_code(self, identifying_code, username):
         # 发送到短信平台
-        main.send_message_to_phone({'code': identifying_code},
-                                   (username,))
+        main.send_phone_message_for_5_platform(identifying_code, username)
 
     def post(self, request, *args, **kwargs):
         form = SendIdentifyingCodeWithLoginForm(request.data)
