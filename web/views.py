@@ -43,7 +43,9 @@ from web.serializers import (DimensionSerializer,
                              MediaDetailSerializer,
                              MediaListSerializer,
                              UserRoleSerializer,
-                             UserRoleListSerializer)
+                             UserRoleListSerializer,
+                             AdjustCoefficientSerializer,
+                             AdjustCoefficientListSerializer)
 from web.permissions import IsOwnerOrReadOnly
 from web.forms import (DimensionActionForm,
                        DimensionUpdateForm,
@@ -118,17 +120,21 @@ from web.forms import (DimensionActionForm,
                        UserRoleUpdateForm,
                        UserRoleDeleteForm,
                        UserRoleDetailForm,
-                       UserRoleListForm)
+                       UserRoleListForm,
+                       AdjustCoefficientActionForm,
+                       AdjustCoefficientDetailForm,
+                       AdjustCoefficientListForm)
 from Web_App.web_dimensions.models import (Dimension,
                                            Attribute,
                                            Tag,
-                                           TagConfigure)
+                                           TagConfigure,
+                                           AdjustCoefficient)
 from Web_App.web_media.models import (Media,
                                       MediaConfigure,
                                       MediaType, ThemeType,
                                       ProjectProgress,
                                       ResourceTags,
-                                      Information, Case)
+                                      Information, Case,)
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
 from Web_App.web_users.models import Role
@@ -2094,6 +2100,82 @@ class UserRoleList(generics.GenericAPIView):
 
         serializer = UserRoleListSerializer(instances)
         list_data = serializer.list_data(**cld)
+        if isinstance(list_data, Exception):
+            return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(list_data, status=status.HTTP_200_OK)
+
+
+class AdjustCoefficientAction(generics.GenericAPIView):
+    """
+    调整系数操作
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_adjust_coefficient(self, adjust_coe_id):
+        return AdjustCoefficient.get_object(pk=adjust_coe_id)
+
+    def put(self, request, *args, **kwargs):
+        form = AdjustCoefficientActionForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_adjust_coefficient(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdjustCoefficientSerializer(instance)
+        try:
+            serializer.update(instance, cld)
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
+
+
+class AdjustCoefficientDetail(generics.GenericAPIView):
+    """
+    调整系数详情
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_adjust_coefficient(self, adjust_coe_id):
+        return AdjustCoefficient.get_object(pk=adjust_coe_id)
+
+    def post(self, request, *args, **kwargs):
+        form = AdjustCoefficientDetailForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_adjust_coefficient(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdjustCoefficientSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AdjustCoefficientList(generics.GenericAPIView):
+    """
+    调整系数详情列表
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_adjust_coefficient_list(self):
+        return AdjustCoefficient.filter_objects()
+
+    def post(self, request, *args, **kwargs):
+        form = AdjustCoefficientListForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instances = self.get_adjust_coefficient_list(cld['id'])
+        if isinstance(instances, Exception):
+            return Response({'Detail': instances.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdjustCoefficientListSerializer(instances)
+        list_data = serializer.is_valid(**cld)
         if isinstance(list_data, Exception):
             return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(list_data, status=status.HTTP_200_OK)

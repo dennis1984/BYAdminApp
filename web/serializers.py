@@ -15,7 +15,9 @@ from horizon.serializers import (BaseListSerializer,
 
 from Web_App.web_dimensions.models import (Dimension,
                                            Attribute,
-                                           TagConfigure, Tag)
+                                           TagConfigure,
+                                           Tag,
+                                           AdjustCoefficient)
 from Web_App.web_media.models import (Media, MediaConfigure,
                                       MediaType, ThemeType,
                                       ProjectProgress,
@@ -541,3 +543,20 @@ class UserRoleSerializer(BaseModelSerializer):
 
 class UserRoleListSerializer(BaseListSerializer):
     child = UserRoleSerializer()
+
+
+class AdjustCoefficientSerializer(BaseModelSerializer):
+    class Meta:
+        model = AdjustCoefficient
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        pop_keys = ['pk', 'id', 'adjust_coefficient_id']
+        for key in pop_keys:
+            if key in validated_data:
+                validated_data.pop(key)
+        return super(AdjustCoefficientSerializer, self).update(instance, validated_data)
+
+
+class AdjustCoefficientListSerializer(BaseListSerializer):
+    child = AdjustCoefficientSerializer()

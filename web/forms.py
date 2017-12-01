@@ -525,3 +525,17 @@ class UserRoleListForm(forms.Form):
     name = forms.CharField(max_length=32, required=False)
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
+
+
+class AdjustCoefficientActionForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+    value = forms.FloatField(min_value=0.01)
+
+
+class AdjustCoefficientDetailForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class AdjustCoefficientListForm(forms.Form):
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)

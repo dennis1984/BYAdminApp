@@ -78,7 +78,12 @@ urlpatterns = [
     # 用户角色
     url(r'^user_role_action/$', views.UserRoleAction.as_view()),
     url(r'^user_role_detail/$', views.UserRoleDetail.as_view()),
-    url(r'^user_role_list/$', views.UserRoleList.as_view())
+    url(r'^user_role_list/$', views.UserRoleList.as_view()),
+
+    # 调整系数
+    url(r'^adjust_coefficient_action/$', views.AdjustCoefficientAction.as_view()),
+    url(r'^adjust_coefficient_detail/$', views.AdjustCoefficientDetail.as_view()),
+    url(r'^adjust_coefficient_list/$', views.AdjustCoefficientList.as_view()),
 
 ]
 
