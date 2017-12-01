@@ -138,6 +138,7 @@ from Web_App.web_media.models import (Media,
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
 from Web_App.web_users.models import Role
+from web.caches import BaseCache
 
 from horizon.views import APIView
 from horizon.main import make_random_number_of_string
@@ -2170,12 +2171,12 @@ class AdjustCoefficientList(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
-        instances = self.get_adjust_coefficient_list(cld['id'])
+        instances = self.get_adjust_coefficient_list()
         if isinstance(instances, Exception):
             return Response({'Detail': instances.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = AdjustCoefficientListSerializer(instances)
-        list_data = serializer.is_valid(**cld)
+        list_data = serializer.list_data(**cld)
         if isinstance(list_data, Exception):
             return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(list_data, status=status.HTTP_200_OK)

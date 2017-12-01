@@ -60,6 +60,9 @@ class BaseCache(object):
     def get_case_id_key(self, case_id):
         return 'case_id:%s' % case_id
 
+    def delete_data_from_cache(self, key):
+        self.handle.delete(key)
+
     def set_instance_to_cache(self, key, data):
         self.handle.set(key, data)
         self.handle.expire(key, EXPIRES_24_HOURS)
@@ -67,62 +70,101 @@ class BaseCache(object):
     def get_instance_from_cache(self, key):
         return self.handle.get(key)
 
-    def get_base_instance_by_key(self, instance_id, key, model_class):
-        instance = self.get_instance_from_cache(key)
-        if not instance:
-            instance = model_class.get_object(pk=instance_id)
-            if isinstance(instance, Exception):
-                return instance
-            self.set_instance_to_cache(key, instance)
-        return instance
+    def get_perfect_data(self, key, model_function, **kwargs):
+        data = self.get_instance_from_cache(key)
+        if not data:
+            data = model_function(**kwargs)
+            if isinstance(data, Exception):
+                return data
+            self.set_instance_to_cache(key, data)
+        return data
 
     # 获取维度model对象
     def get_dimension_by_id(self, dimension_id):
         key = self.get_dimension_id_key(dimension_id)
-        return self.get_base_instance_by_key(dimension_id, key, Dimension)
+        kwargs = {'pk': dimension_id}
+        return self.get_perfect_data(key, Dimension.get_object, **kwargs)
+
+    # 删除维度model对象
+    def delete_dimension_by_id(self, dimension_id):
+        key = self.get_dimension_id_key(dimension_id)
+        self.delete_data_from_cache(key)
 
     # 获取属性model对象
     def get_attribute_by_id(self, attribute_id):
         key = self.get_attribute_id_key(attribute_id)
-        return self.get_base_instance_by_key(attribute_id, key, Attribute)
+        kwargs = {'pk': attribute_id}
+        return self.get_perfect_data(key, Attribute.get_object, **kwargs)
+
+    # 删除属性model对象
+    def delete_attribute_by_id(self, attribute_id):
+        key = self.get_attribute_id_key(attribute_id)
+        self.delete_data_from_cache(key)
 
     # 获取标签model对象
     def get_tag_by_id(self, tag_id):
         key = self.get_tag_id_key(tag_id)
-        return self.get_base_instance_by_key(tag_id, key, Tag)
+        kwargs = {'pk': tag_id}
+        return self.get_perfect_data(key, Tag.get_object, **kwargs)
 
-    # 获取媒体资源model对象
+    # 删除标签model对象
+    def delete_tag_by_id(self, tag_id):
+        key = self.get_tag_id_key(tag_id)
+        self.delete_data_from_cache(key)
+
+    # 获取媒体资源detail
     def get_media_by_id(self, media_id):
         key = self.get_media_id_key(media_id)
-        return self.get_base_instance_by_key(media_id, key, Media)
+        kwargs = {'pk': media_id}
+        return self.get_perfect_data(key, Media.get_detail, **kwargs)
+
+    # 删除媒体资源详情
+    def delete_media_by_id(self, media_id):
+        key = self.get_media_id_key(media_id)
+        self.delete_data_from_cache(key)
 
     # 获取资源类型model对象
     def get_media_type_by_id(self, media_type_id):
         key = self.get_media_id_key(media_type_id)
-        return self.get_base_instance_by_key(media_type_id, key, MediaType)
+        kwargs = {'pk': media_type_id}
+        return self.get_perfect_data(key, MediaType.get_object, **kwargs)
+
+    # 删除资源类型model对象
+    def delete_media_type_by_id(self, media_type_id):
+        key = self.get_media_type_id_key(media_type_id)
+        self.delete_data_from_cache(key)
 
     # 获取题材类别model对象
     def get_theme_type_by_id(self, theme_type_id):
         key = self.get_theme_type_id_key(theme_type_id)
-        return self.get_base_instance_by_key(theme_type_id, key, ThemeType)
+        kwargs = {'pk': theme_type_id}
+        return self.get_perfect_data(key, ThemeType.get_object, **kwargs)
+
+    # 删除题材类别model对象
+    def delete_theme_type_by_id(self, theme_type_id):
+        key = self.get_theme_type_id_key(theme_type_id)
+        self.delete_data_from_cache(key)
 
     # 获取项目进度model对象
     def get_progress_by_id(self, progress_id):
         key = self.get_progress_id_key(progress_id)
-        return self.get_base_instance_by_key(progress_id, key, ProjectProgress)
+        kwargs = {'pk': progress_id}
+        return self.get_perfect_data(key, ProjectProgress.get_object, **kwargs)
 
     # 获取资源标签model对象
     def get_resource_tag_by_id(self, resource_tag_id):
         key = self.get_resource_tag_id_key(resource_tag_id)
-        return self.get_base_instance_by_key(resource_tag_id,  key, ResourceTags)
+        kwargs = {'pk': resource_tag_id}
+        return self.get_perfect_data(key, ResourceTags.get_object, **kwargs)
 
     # 获取资讯model对象
     def get_information_by_id(self, information_id):
         key = self.get_information_id_key(information_id)
-        return self.get_base_instance_by_key(information_id, key, Information)
+        kwargs = {'pk': information_id}
+        return self.get_perfect_data(key, Information.get_detail, **kwargs)
 
     # 获取案例model对象
     def get_case_by_id(self, case_id):
         key = self.get_case_id_key(case_id)
-        return self.get_base_instance_by_key(case_id, key, Case)
-
+        kwargs = {'pk': case_id}
+        return self.get_perfect_data(key, Case.get_detail, **kwargs)
