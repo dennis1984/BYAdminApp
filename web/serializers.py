@@ -26,6 +26,7 @@ from Web_App.web_media.models import (Media, MediaConfigure,
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
 from Web_App.web_users.models import Role
+from web.caches import BaseCache
 
 import urllib
 import os
@@ -46,7 +47,15 @@ class DimensionSerializer(BaseModelSerializer):
         model = Dimension
         fields = '__all__'
 
+    def save(self, **kwargs):
+        # 删除缓存
+        BaseCache().delete_dimension_list()
+        return super(DimensionSerializer, self).save(**kwargs)
+
     def update(self, instance, validated_data):
+        # 删除缓存
+        BaseCache().delete_dimension_list()
+
         pop_keys = ['dimension_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -54,6 +63,9 @@ class DimensionSerializer(BaseModelSerializer):
         return super(DimensionSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        # 删除缓存
+        BaseCache().delete_dimension_list()
+
         validated_data = {'status': instance.id + 1}
         return super(DimensionSerializer, self).update(instance, validated_data)
 
@@ -99,6 +111,7 @@ class TagSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+        self.delete_tag_list_from_cache()
         pop_keys = ['tag_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -106,8 +119,15 @@ class TagSerializer(BaseModelSerializer):
         return super(TagSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        self.delete_tag_list_from_cache()
         validated_data = {'status': instance.id + 1}
         return super(TagSerializer, self).update(instance, validated_data)
+
+    def delete_tag_list_from_cache(self):
+        # 删除缓存
+        dimension_instances = Dimension.filter_objects()
+        for ins in dimension_instances:
+            BaseCache().delete_tag_list_by_dimension_id(dimension_id=ins.id)
 
 
 class TagListSerializer(BaseListSerializer):
@@ -120,6 +140,7 @@ class TagConfigureSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+        self.delete_tag_list_from_cache()
         pop_keys = ['tag_configure_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -127,8 +148,15 @@ class TagConfigureSerializer(BaseModelSerializer):
         return super(TagConfigureSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        self.delete_tag_list_from_cache()
         validated_data = {'status': instance.id + 1}
         return super(TagConfigureSerializer, self).update(instance, validated_data)
+
+    def delete_tag_list_from_cache(self):
+        # 删除缓存
+        dimension_instances = Dimension.filter_objects()
+        for ins in dimension_instances:
+            BaseCache().delete_tag_list_by_dimension_id(dimension_id=ins.id)
 
 
 class TagConfigureDetailSerializer(BaseSerializer):
@@ -167,6 +195,9 @@ class MediaSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+        # 删除缓存
+        BaseCache().delete_media_by_id(media_id=instance.id)
+
         pop_keys = ['media_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -174,6 +205,9 @@ class MediaSerializer(BaseModelSerializer):
         return super(MediaSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        # 删除缓存
+        BaseCache().delete_media_by_id(media_id=instance.id)
+
         validated_data = {'status': instance.id + 1}
         return super(MediaSerializer, self).update(instance, validated_data)
 
@@ -363,6 +397,9 @@ class ReportSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+        # 删除缓存
+        BaseCache().delete_report_by_id(report_id=instance.id)
+
         pop_keys = ['pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -370,6 +407,9 @@ class ReportSerializer(BaseModelSerializer):
         return super(ReportSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        # 删除缓存
+        BaseCache().delete_report_by_id(report_id=instance.id)
+
         validated_data = {'status': instance.id + 1}
         return super(ReportSerializer, self).update(instance, validated_data)
 
@@ -417,7 +457,12 @@ class ReplyCommentSerializer(BaseModelSerializer):
         model = ReplyComment
         fields = '__all__'
 
+    def save(self, **kwargs):
+        self.delete_data_from_cache(comment_id=self.initial_data['comment_id'])
+        return super(ReplyCommentSerializer, self).save(**kwargs)
+
     def update(self, instance, validated_data):
+        self.delete_data_from_cache(comment_id=instance.comment_id)
         pop_keys = ['comment_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -425,8 +470,16 @@ class ReplyCommentSerializer(BaseModelSerializer):
         return super(ReplyCommentSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        self.delete_data_from_cache(comment_id=instance.comment_id)
         validated_data = {'status': instance.id + 1}
         return super(ReplyCommentSerializer, self).update(instance, validated_data)
+
+    def delete_data_from_cache(self, comment_id):
+        # 删除缓存
+        comment = Comment.get_object(pk=comment_id)
+        BaseCache().delete_comment_list_by_user_id(user_id=comment.user_id)
+        BaseCache().delete_comment_list_by_source_id(source_type=comment.source_type,
+                                                     source_id=comment.source_id)
 
 
 class CommentAndReplyDetailSerializer(BaseSerializer):

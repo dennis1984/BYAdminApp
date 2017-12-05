@@ -17,6 +17,7 @@ from Web_App.web_media.models import (Media,
                                       ResourceTags,
                                       Information,
                                       Case)
+from Web_App.web_reports.models import Report
 
 # 过期时间（单位：秒）
 EXPIRES_24_HOURS = 24 * 60 * 60
@@ -31,34 +32,52 @@ class BaseCache(object):
         self.handle = redis.Redis(connection_pool=pool)
 
     def get_dimension_id_key(self, dimension_id):
-        return 'dimension_id:%s' % dimension_id
+        return 'dimension:id:%s' % dimension_id
+
+    def get_dimension_list_key(self):
+        return 'dimension_list'
 
     def get_attribute_id_key(self, attribute_id):
-        return 'attribute_id:%s' % attribute_id
+        return 'attribute:id:%s' % attribute_id
+
+    def get_attribute_list(self):
+        return 'attribute_list'
 
     def get_tag_id_key(self, tag_id):
-        return 'tag_id:%s' % tag_id
+        return 'tag:id:%s' % tag_id
+
+    def get_tag_list_key(self, dimension_id):
+        return 'tag_list:dimension_id:%s' % dimension_id
 
     def get_media_id_key(self, media_id):
-        return 'media_id:%s' % media_id
+        return 'media:id:%s' % media_id
 
     def get_media_type_id_key(self, media_type_id):
-        return 'media_type_id:%s' % media_type_id
+        return 'media_type:id:%s' % media_type_id
 
     def get_theme_type_id_key(self, theme_type_id):
-        return 'theme_type_id:%s' % theme_type_id
+        return 'theme_type:id:%s' % theme_type_id
 
     def get_progress_id_key(self, progress_id):
-        return 'progress_id:%s' % progress_id
+        return 'progress:id:%s' % progress_id
 
     def get_resource_tag_id_key(self, resource_tag_id):
-        return 'resource_tag_id:%s' % resource_tag_id
+        return 'resource_tag:id:%s' % resource_tag_id
 
     def get_information_id_key(self, information_id):
-        return 'information_id:%s' % information_id
+        return 'information:id:%s' % information_id
 
     def get_case_id_key(self, case_id):
-        return 'case_id:%s' % case_id
+        return 'case:id:%s' % case_id
+
+    def get_report_id_key(self, report_id):
+        return 'report:id:%s' % report_id
+
+    def get_comment_list_user_id_key(self, user_id):
+        return 'comment:list:user_id:%s' % user_id
+
+    def get_comment_list_source_id_key(self, source_type, source_id):
+        return 'comment:list:source_id:%s-%s' % (source_type, source_id)
 
     def delete_data_from_cache(self, key):
         self.handle.delete(key)
@@ -90,6 +109,11 @@ class BaseCache(object):
         key = self.get_dimension_id_key(dimension_id)
         self.delete_data_from_cache(key)
 
+    # 删除维度List
+    def delete_dimension_list(self):
+        key = self.get_dimension_list_key()
+        return self.delete_data_from_cache(key)
+
     # 获取属性model对象
     def get_attribute_by_id(self, attribute_id):
         key = self.get_attribute_id_key(attribute_id)
@@ -106,6 +130,11 @@ class BaseCache(object):
         key = self.get_tag_id_key(tag_id)
         kwargs = {'pk': tag_id}
         return self.get_perfect_data(key, Tag.get_object, **kwargs)
+
+    # 删除标签List
+    def delete_tag_list_by_dimension_id(self, dimension_id):
+        key = self.get_tag_list_key(dimension_id)
+        return self.delete_data_from_cache(key)
 
     # 删除标签model对象
     def delete_tag_by_id(self, tag_id):
@@ -163,8 +192,39 @@ class BaseCache(object):
         kwargs = {'pk': information_id}
         return self.get_perfect_data(key, Information.get_detail, **kwargs)
 
+    # 删除资讯model对象
+    def delete_information_by_id(self, information_id):
+        key = self.get_information_id_key(information_id)
+        self.delete_data_from_cache(key)
+
     # 获取案例model对象
     def get_case_by_id(self, case_id):
         key = self.get_case_id_key(case_id)
         kwargs = {'pk': case_id}
         return self.get_perfect_data(key, Case.get_detail, **kwargs)
+
+    # 删除案例model对象
+    def delete_case_by_id(self, case_id):
+        key = self.get_case_id_key(case_id)
+        self.delete_data_from_cache(key)
+
+    # 获取报告文件model对象
+    def get_report_by_id(self, report_id):
+        key = self.get_report_id_key(report_id)
+        kwargs = {'pk': report_id}
+        return self.get_perfect_data(key, Report.get_detail, **kwargs)
+
+    # 删除案例model对象
+    def delete_report_by_id(self, report_id):
+        key = self.get_report_id_key(report_id)
+        self.delete_data_from_cache(key)
+
+    # 删除用户评论列表
+    def delete_comment_list_by_user_id(self, user_id):
+        key = self.get_comment_list_user_id_key(user_id)
+        return self.delete_data_from_cache(key)
+
+    # 删除资源的评论列表
+    def delete_comment_list_by_source_id(self, source_type, source_id):
+        key = self.get_comment_list_source_id_key(source_type, source_id)
+        return self.delete_data_from_cache(key)
