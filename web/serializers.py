@@ -506,7 +506,12 @@ class InformationSerializer(BaseModelSerializer):
         model = Information
         fields = '__all__'
 
+    def create_to_db(self, **kwargs):
+        return super(InformationSerializer, self).create_to_db(**kwargs)
+
     def update(self, instance, validated_data):
+        self.delete_data_from_cache(instance.pk)
+
         pop_keys = ['information_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -514,8 +519,14 @@ class InformationSerializer(BaseModelSerializer):
         return super(InformationSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        self.delete_data_from_cache(instance.pk)
+
         validated_data = {'status': instance.id + 1}
         return super(InformationSerializer, self).update(instance, validated_data)
+
+    def delete_data_from_cache(self, information_id):
+        # 删除缓存
+        return BaseCache().delete_information_by_id(information_id)
 
 
 class InformationDetailSerializer(BaseSerializer):
@@ -544,7 +555,11 @@ class CaseSerializer(BaseModelSerializer):
         model = Case
         fields = '__all__'
 
+    def create_to_db(self, **kwargs):
+        return super(CaseSerializer, self).create_to_db(**kwargs)
+
     def update(self, instance, validated_data):
+        self.delete_data_from_cache(instance.pk)
         pop_keys = ['case_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -552,8 +567,13 @@ class CaseSerializer(BaseModelSerializer):
         return super(CaseSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        self.delete_data_from_cache(instance.pk)
         validated_data = {'status': instance.id + 1}
         return super(CaseSerializer, self).update(instance, validated_data)
+
+    def delete_data_from_cache(self, case_id):
+        # 删除缓存
+        return BaseCache().delete_case_by_id(case_id)
 
 
 class CaseDetailSerializer(BaseSerializer):
@@ -582,7 +602,12 @@ class UserRoleSerializer(BaseModelSerializer):
         model = Role
         fields = '__all__'
 
+    def save(self, **kwargs):
+        BaseCache().delete_user_role_list()
+        return super(UserRoleSerializer, self).save(**kwargs)
+
     def update(self, instance, validated_data):
+        BaseCache().delete_user_role_list()
         pop_keys = ['user_role_id', 'pk', 'id']
         for key in pop_keys:
             if key in validated_data:
@@ -590,6 +615,7 @@ class UserRoleSerializer(BaseModelSerializer):
         return super(UserRoleSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        BaseCache().delete_user_role_list()
         validated_data = {'status': instance.id + 1}
         return super(UserRoleSerializer, self).update(instance, validated_data)
 
@@ -604,6 +630,8 @@ class AdjustCoefficientSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def update(self, instance, validated_data):
+        # 删除缓存
+        BaseCache().delete_adjust_coefficient_by_name(adjust_coefficient_name=instance.name)
         pop_keys = ['pk', 'id', 'adjust_coefficient_id']
         for key in pop_keys:
             if key in validated_data:
