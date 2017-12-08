@@ -245,7 +245,7 @@ class MediaDetailSerializer(BaseSerializer):
     # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": ["冯小刚", "吴宇森"],
     #                                        "主演": ["成龙", "李连杰"],
     #                                        "出演": ["巩俐", "章子怡"], ......}
-    media_outline = serializers.DictField()
+    media_outline = serializers.DictField(allow_null=True)
 
     # 预计上映/播出时间
     air_time = serializers.DateTimeField()
@@ -258,7 +258,7 @@ class MediaDetailSerializer(BaseSerializer):
     #                                                "女主角号召力": 4.2,
     #                                                "类型关注度": 3.8,
     #                                                "片方指数": 3.7}
-    film_performance = serializers.DictField()
+    film_performance = serializers.DictField(allow_null=True)
 
     picture_profile = serializers.ImageField()
     picture_detail = serializers.ImageField()
