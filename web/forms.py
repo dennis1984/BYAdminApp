@@ -128,7 +128,8 @@ class MediaInputForm(forms.Form):
                                                (2, 2)),
                                       error_messages={
                                           'required': 'Template type must in [1, 2]'
-                                      })
+                                      },
+                                      required=False)
     # 标签：数据格式为JSON字符串，如：[1, 2, 3]  (值为标签ID)
     tags = forms.CharField()
 
@@ -165,7 +166,7 @@ class MediaInputForm(forms.Form):
     # 资源概述 数据格式为字典形式的JSON字符串，如：{"导演": "冯小刚, 吴宇森",
     #                                        "主演": "成龙, 李连杰",
     #                                        "出演": "巩俐, 章子怡", ......}
-    media_outline = forms.CharField()
+    media_outline = forms.CharField(required=False)
 
     # 预计上映/播出时间
     air_time = forms.DateTimeField()
@@ -184,7 +185,7 @@ class MediaInputForm(forms.Form):
     #                                                "女主角号召力": 4.2,
     #                                                "类型关注度": 3.8,
     #                                                "片方指数": 3.7}
-    film_performance = forms.CharField(max_length=512)
+    film_performance = forms.CharField(max_length=512, required=False)
 
     picture = forms.ImageField(required=False)
 
