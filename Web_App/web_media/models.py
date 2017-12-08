@@ -793,3 +793,48 @@ class Case(models.Model):
             details.append(ins.perfect_detail)
         return details
 
+
+ADVERT_PICTURE_PATH = settings.PICTURE_DIRS['web']['advert']
+
+
+class AdvertResource(models.Model):
+    """
+    广告资源
+    """
+    title = models.CharField('广告标题', max_length=128)
+    subtitle = models.CharField('广告副标题', max_length=128, null=True, blank=True)
+    source_type = models.IntegerField('媒体资源类型')
+
+    link_url = models.TextField('链接地址', null=True, blank=True)
+    picture = models.ImageField(max_length=200,
+                                upload_to=ADVERT_PICTURE_PATH,
+                                default=os.path.join(ADVERT_PICTURE_PATH, 'noImage.png'))
+    # 数据状态：1：有效 非1：已删除
+    status = models.IntegerField('操作（点赞、踩）', default=1)
+    created = models.DateTimeField('创建时间', default=now)
+    updated = models.DateTimeField('更新时间', auto_now=True)
+
+    object = BaseManager()
+
+    class Meta:
+        db_table = 'by_advert_resource'
+        index_together = ('title',)
+
+    def __unicode__(self):
+        return self.title
+
+    @classmethod
+    def get_object(cls, **kwargs):
+        kwargs = get_perfect_filter_params(cls, **kwargs)
+        try:
+            return cls.objects.get(**kwargs)
+        except Exception as e:
+            return e
+
+    @classmethod
+    def filter_objects(cls, **kwargs):
+        kwargs = get_perfect_filter_params(cls, **kwargs)
+        try:
+            return cls.objects.filter(**kwargs)
+        except Exception as e:
+            return e
