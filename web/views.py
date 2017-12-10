@@ -2215,7 +2215,7 @@ class AdvertResourceAction(generics.GenericAPIView):
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def update(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         form = AdvertResourceUpdateForm(request.data, request.FILES)
         if not form.is_valid():
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)

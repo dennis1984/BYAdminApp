@@ -85,6 +85,11 @@ urlpatterns = [
     url(r'^adjust_coefficient_detail/$', views.AdjustCoefficientDetail.as_view()),
     url(r'^adjust_coefficient_list/$', views.AdjustCoefficientList.as_view()),
 
+    # 广告轮播图
+    url(r'^advert_resource_action/$', views.AdvertResourceAction.as_view()),
+    url(r'^advert_resource_detail/$', views.AdvertResourceDetail.as_view()),
+    url(r'^advert_resource_list/$', views.AdvertResourceList.as_view()),
+
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
