@@ -45,7 +45,9 @@ from web.serializers import (DimensionSerializer,
                              UserRoleSerializer,
                              UserRoleListSerializer,
                              AdjustCoefficientSerializer,
-                             AdjustCoefficientListSerializer)
+                             AdjustCoefficientListSerializer,
+                             AdvertResourceSerializer,
+                             AdvertResourceListSerializer)
 from web.permissions import IsOwnerOrReadOnly
 from web.forms import (DimensionActionForm,
                        DimensionUpdateForm,
@@ -123,7 +125,12 @@ from web.forms import (DimensionActionForm,
                        UserRoleListForm,
                        AdjustCoefficientActionForm,
                        AdjustCoefficientDetailForm,
-                       AdjustCoefficientListForm)
+                       AdjustCoefficientListForm,
+                       AdvertResourceInputForm,
+                       AdvertResourceUpdateForm,
+                       AdvertResourceDeleteForm,
+                       AdvertResourceDetailForm,
+                       AdvertResourceListForm)
 from Web_App.web_dimensions.models import (Dimension,
                                            Attribute,
                                            Tag,
@@ -134,7 +141,8 @@ from Web_App.web_media.models import (Media,
                                       MediaType, ThemeType,
                                       ProjectProgress,
                                       ResourceTags,
-                                      Information, Case,)
+                                      Information, Case,
+                                      AdvertResource)
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
 from Web_App.web_users.models import Role
@@ -2176,6 +2184,116 @@ class AdjustCoefficientList(generics.GenericAPIView):
             return Response({'Detail': instances.args}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = AdjustCoefficientListSerializer(instances)
+        list_data = serializer.list_data(**cld)
+        if isinstance(list_data, Exception):
+            return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(list_data, status=status.HTTP_200_OK)
+
+
+class AdvertResourceAction(generics.GenericAPIView):
+    """
+    广告轮播图操作
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_advert_resource_object(self, advert_resource_id):
+        kwargs = {'id': advert_resource_id}
+        return AdvertResource.get_object(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = AdvertResourceInputForm(request.data, request.FILES)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        serializer = AdvertResourceSerializer(data=cld)
+        if not serializer.is_valid():
+            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.create_to_db()
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        form = AdvertResourceUpdateForm(request.data, request.FILES)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_advert_resource_object(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdvertResourceSerializer(instance)
+        try:
+            serializer.update(instance, cld)
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_206_PARTIAL_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        form = AdvertResourceDeleteForm(request.data, request.FILES)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_advert_resource_object(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdvertResourceSerializer(instance)
+        try:
+            serializer.delete(instance)
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AdvertResourceDetail(generics.GenericAPIView):
+    """
+    广告轮播图详情
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_advert_resource_object(self, advert_resource_id):
+        kwargs = {'id': advert_resource_id}
+        return AdvertResource.get_object(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = AdvertResourceDeleteForm(request.data, request.FILES)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instance = self.get_advert_resource_object(cld['id'])
+        if isinstance(instance, Exception):
+            return Response({'Detail': instance.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdvertResourceSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AdvertResourceList(generics.GenericAPIView):
+    """
+    广告轮播图详情列表
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_advert_resource_list(self, **kwargs):
+        return AdvertResource.filter_objects(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = AdvertResourceListForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        instances = self.get_advert_resource_list(**cld)
+        if isinstance(instances, Exception):
+            return Response({'Detail': instances.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = AdvertResourceListSerializer(instances)
         list_data = serializer.list_data(**cld)
         if isinstance(list_data, Exception):
             return Response({'Detail': list_data.args}, status=status.HTTP_400_BAD_REQUEST)

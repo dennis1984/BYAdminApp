@@ -540,3 +540,50 @@ class AdjustCoefficientDetailForm(forms.Form):
 class AdjustCoefficientListForm(forms.Form):
     page_size = forms.IntegerField(min_value=1, required=False)
     page_index = forms.IntegerField(min_value=1, required=False)
+
+
+class AdvertResourceInputForm(forms.Form):
+    title = forms.CharField(max_length=128)
+    subtitle = forms.CharField(max_length=128)
+    source_type = forms.ChoiceField(choices=((1, 1),
+                                             (2, 2),
+                                             (3, 3)),
+                                    error_messages={
+                                        'required': 'Param source_type must in [1, 2, 3]'
+                                    })
+    # 链接地址
+    link_url = forms.CharField(required=False)
+    # 广告轮播图
+    picture = forms.ImageField()
+
+
+class AdvertResourceUpdateForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+    title = forms.CharField(max_length=128, required=False)
+    subtitle = forms.CharField(max_length=128, required=False)
+    source_type = forms.ChoiceField(choices=((1, 1),
+                                             (2, 2),
+                                             (3, 3)),
+                                    required=False)
+    # 链接地址
+    link_url = forms.CharField(required=False)
+    # 广告轮播图
+    picture = forms.ImageField(required=False)
+
+
+class AdvertResourceDeleteForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class AdvertResourceDetailForm(forms.Form):
+    id = forms.IntegerField(min_value=1)
+
+
+class AdvertResourceListForm(forms.Form):
+    source_type = forms.ChoiceField(choices=((1, 1),
+                                             (2, 2),
+                                             (3, 3)),
+                                    required=False)
+    page_size = forms.IntegerField(min_value=1, required=False)
+    page_index = forms.IntegerField(min_value=1, required=False)
+

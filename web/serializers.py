@@ -22,7 +22,8 @@ from Web_App.web_media.models import (Media, MediaConfigure,
                                       MediaType, ThemeType,
                                       ProjectProgress,
                                       ResourceTags,
-                                      Information, Case)
+                                      Information, Case,
+                                      AdvertResource)
 from Web_App.web_reports.models import Report, ReportDownloadRecord
 from Web_App.web_comment.models import (Comment, ReplyComment)
 from Web_App.web_users.models import Role
@@ -641,3 +642,25 @@ class AdjustCoefficientSerializer(BaseModelSerializer):
 
 class AdjustCoefficientListSerializer(BaseListSerializer):
     child = AdjustCoefficientSerializer()
+
+
+class AdvertResourceSerializer(BaseModelSerializer):
+    class Meta:
+        model = AdvertResource
+        fields = '__all__'
+
+    def update(self, instance, validated_data):
+        pop_keys = ['pk', 'id', 'advert_resource_id']
+        for key in pop_keys:
+            if key in validated_data:
+                validated_data.pop(key)
+        return super(AdvertResourceSerializer, self).update(instance, validated_data)
+
+    def delete(self, instance):
+        validated_data = {'status': instance.id + 1}
+        return super(AdvertResourceSerializer, self).update(instance, validated_data)
+
+
+class AdvertResourceListSerializer(BaseListSerializer):
+    child = AdvertResourceSerializer()
+

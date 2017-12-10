@@ -238,6 +238,7 @@ PICTURE_DIRS = {
         'report': os.path.join(WEB_FILE_ROOT, 'report'),                  # 报告文件目录
         'information': os.path.join(WEB_FILE_ROOT, 'information'),        # 资讯文件目录
         'case': os.path.join(WEB_FILE_ROOT, 'case'),                      # 案例文件目录
+        'advert': os.path.join(WEB_PICTURE_ROOT, 'advert'),  # 广告图片目录
     },
     'admin': {
         'head_picture': os.path.join(ADMIN_PICTURE_ROOT, 'head_picture'),  # 用户头像图片目录
