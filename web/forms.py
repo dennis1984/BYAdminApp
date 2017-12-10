@@ -443,6 +443,10 @@ class InformationInputForm(forms.Form):
     picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256)
+    # 运营标记：0：无标记 1：重磅发布
+    mark = forms.IntegerField(min_value=1, required=False)
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = forms.IntegerField(min_value=1, required=False)
 
 
 class InformationUpdateForm(forms.Form):
@@ -454,6 +458,10 @@ class InformationUpdateForm(forms.Form):
     picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256, required=False)
+    # 运营标记：0：无标记 1：重磅发布
+    mark = forms.IntegerField(min_value=1, required=False)
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = forms.IntegerField(min_value=1, required=False)
 
 
 class InformationDeleteForm(forms.Form):
@@ -478,6 +486,10 @@ class CaseInputForm(forms.Form):
     picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256)
+    # 运营标记：0：无标记 1：重磅发布
+    mark = forms.IntegerField(min_value=1, required=False)
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = forms.IntegerField(min_value=1, required=False)
 
 
 class CaseUpdateForm(forms.Form):
@@ -489,6 +501,10 @@ class CaseUpdateForm(forms.Form):
     picture = forms.ImageField(required=False)
     # 标签：数据格式为JSON字符串，如：['综艺', '植入', '片头']
     tags = forms.CharField(max_length=256, required=False)
+    # 运营标记：0：无标记 1：重磅发布
+    mark = forms.IntegerField(min_value=1, required=False)
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = forms.IntegerField(min_value=1, required=False)
 
 
 class CaseDeleteForm(forms.Form):

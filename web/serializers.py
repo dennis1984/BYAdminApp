@@ -543,6 +543,12 @@ class InformationDetailSerializer(BaseSerializer):
     read_count = serializers.IntegerField()
     # 点赞数量
     like = serializers.IntegerField()
+    # 收藏数量
+    collection_count = serializers.IntegerField()
+    # 运营标记：0：无标记 1：重磅发布
+    mark = serializers.IntegerField()
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = serializers.IntegerField()
     created = serializers.DateTimeField()
     updated = serializers.DateTimeField()
 
@@ -590,6 +596,12 @@ class CaseDetailSerializer(BaseSerializer):
     read_count = serializers.IntegerField()
     # 点赞数量
     like = serializers.IntegerField()
+    # 收藏数量
+    collection_count = serializers.IntegerField()
+    # 运营标记：0：无标记 1：重磅发布
+    mark = serializers.IntegerField()
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = serializers.IntegerField()
     created = serializers.DateTimeField()
     updated = serializers.DateTimeField()
 

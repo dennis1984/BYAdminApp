@@ -606,9 +606,15 @@ class Information(models.Model):
     read_count = models.IntegerField('浏览数', default=0)
     # 点赞数量
     like = models.IntegerField('点赞数量', default=0)
+    # 收藏数量
+    collection_count = models.IntegerField('收藏数量', default=0)
+    # 运营标记：0：无标记 1：重磅发布
+    mark = models.IntegerField('运营标记', default=0)
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = models.IntegerField('栏目', default=0)
+
     # 数据状态：1    ：正常 非1：已删除
     status = models.IntegerField('数据状态', default=1)
-
     created = models.DateTimeField('创建时间', default=now)
     updated = models.DateTimeField('更新时间', auto_now=True)
 
@@ -711,9 +717,15 @@ class Case(models.Model):
     read_count = models.IntegerField('浏览数', default=0)
     # 点赞数量
     like = models.IntegerField('点赞数量', default=0)
+    # 收藏数量
+    collection_count = models.IntegerField('收藏数量', default=0)
+    # 运营标记：0：无标记 1：重磅发布
+    mark = models.IntegerField('运营标记', default=0)
+    # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
+    column = models.IntegerField('栏目', default=0)
+
     # 数据状态：1：正常 非1：已删除
     status = models.IntegerField('数据状态', default=1)
-
     created = models.DateTimeField('创建时间', default=now)
     updated = models.DateTimeField('更新时间', auto_now=True)
 
