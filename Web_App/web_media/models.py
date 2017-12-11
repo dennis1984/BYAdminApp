@@ -613,7 +613,7 @@ class Information(models.Model):
     # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
     column = models.IntegerField('栏目', default=0)
 
-    # 数据状态：1    ：正常 非1：已删除
+    # 数据状态：1：正常 非1：已删除
     status = models.IntegerField('数据状态', default=1)
     created = models.DateTimeField('创建时间', default=now)
     updated = models.DateTimeField('更新时间', auto_now=True)
@@ -622,6 +622,7 @@ class Information(models.Model):
 
     class Meta:
         db_table = 'by_information'
+        ordering = ['-updated']
         app_label = 'Web_App.web_media.models.Information'
 
     class AdminMeta:
@@ -733,6 +734,7 @@ class Case(models.Model):
 
     class Meta:
         db_table = 'by_case'
+        ordering = ['-updated']
         app_label = 'Web_App.web_media.models.Case'
 
     class AdminMeta:
