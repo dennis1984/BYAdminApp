@@ -88,6 +88,12 @@ class BaseCache(object):
     def get_user_role_list_key(self):
         return 'user_role_list'
 
+    def get_advert_list_source_type_key(self, source_type):
+        return 'advert_list:source_type:%s' % source_type
+
+    def get_advert_detail_id_key(self, advert_id):
+        return 'advert_detail:id:%s' % advert_id
+
     def delete_data_from_cache(self, key):
         self.handle.delete(key)
 
@@ -251,4 +257,14 @@ class BaseCache(object):
     # 删除用户角色列表
     def delete_user_role_list(self):
         key = self.get_user_role_list_key()
+        return self.delete_data_from_cache(key)
+
+    # 删除广告的评论列表
+    def delete_advert_list_by_source_type(self, source_type):
+        key = self.get_advert_list_source_type_key(source_type)
+        return self.delete_data_from_cache(key)
+
+    # 删除广告数据
+    def delete_advert_detail_by_advert_id(self, advert_id):
+        key = self.get_advert_detail_id_key(advert_id=advert_id)
         return self.delete_data_from_cache(key)

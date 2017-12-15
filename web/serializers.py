@@ -661,7 +661,17 @@ class AdvertResourceSerializer(BaseModelSerializer):
         model = AdvertResource
         fields = '__all__'
 
+    def create_to_db(self, **kwargs):
+        instance = super(AdvertResourceSerializer, self).create_to_db(**kwargs)
+        if isinstance(instance, Exception):
+            return instance
+
+        self.delete_from_cache(instance)
+        return instance
+
     def update(self, instance, validated_data):
+        self.delete_from_cache(instance)
+
         pop_keys = ['pk', 'id', 'advert_resource_id']
         for key in pop_keys:
             if key in validated_data:
@@ -669,8 +679,15 @@ class AdvertResourceSerializer(BaseModelSerializer):
         return super(AdvertResourceSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        self.delete_from_cache(instance)
+
         validated_data = {'status': instance.id + 1}
         return super(AdvertResourceSerializer, self).update(instance, validated_data)
+
+    def delete_from_cache(self, instance):
+        # 从缓存中删除数据
+        BaseCache().delete_advert_list_by_source_type(instance.source_type)
+        BaseCache().delete_advert_detail_by_advert_id(instance.id)
 
 
 class AdvertResourceListSerializer(BaseListSerializer):
