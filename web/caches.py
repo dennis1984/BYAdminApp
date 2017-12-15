@@ -79,6 +79,9 @@ class BaseCache(object):
     def get_comment_list_source_id_key(self, source_type, source_id):
         return 'comment:list:source_id:%s-%s' % (source_type, source_id)
 
+    def get_comment_detail_id_key(self, comment_id):
+        return 'comment_detail:comment_id:%s' % comment_id
+
     def get_adjust_coefficient_name_key(self, name):
         return 'adjust_coefficient:name:%s' % name
 
@@ -233,6 +236,11 @@ class BaseCache(object):
     # 删除资源的评论列表
     def delete_comment_list_by_source_id(self, source_type, source_id):
         key = self.get_comment_list_source_id_key(source_type, source_id)
+        return self.delete_data_from_cache(key)
+
+    # 删除评论数据
+    def delete_comment_detail_by_comment_id(self, comment_id):
+        key = self.get_comment_detail_id_key(comment_id=comment_id)
         return self.delete_data_from_cache(key)
 
     # 删除调整系数Model instance

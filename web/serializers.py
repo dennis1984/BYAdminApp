@@ -459,10 +459,12 @@ class ReplyCommentSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def save(self, **kwargs):
+        # 删除缓存
         self.delete_data_from_cache(comment_id=self.initial_data['comment_id'])
         return super(ReplyCommentSerializer, self).save(**kwargs)
 
     def update(self, instance, validated_data):
+        # 删除缓存
         self.delete_data_from_cache(comment_id=instance.comment_id)
         pop_keys = ['comment_id', 'pk', 'id']
         for key in pop_keys:
@@ -471,16 +473,14 @@ class ReplyCommentSerializer(BaseModelSerializer):
         return super(ReplyCommentSerializer, self).update(instance, validated_data)
 
     def delete(self, instance):
+        # 删除缓存
         self.delete_data_from_cache(comment_id=instance.comment_id)
         validated_data = {'status': instance.id + 1}
         return super(ReplyCommentSerializer, self).update(instance, validated_data)
 
     def delete_data_from_cache(self, comment_id):
         # 删除缓存
-        comment = Comment.get_object(pk=comment_id)
-        BaseCache().delete_comment_list_by_user_id(user_id=comment.user_id)
-        BaseCache().delete_comment_list_by_source_id(source_type=comment.source_type,
-                                                     source_id=comment.source_id)
+        BaseCache().delete_comment_detail_by_comment_id(comment_id)
 
 
 class CommentAndReplyDetailSerializer(BaseSerializer):
