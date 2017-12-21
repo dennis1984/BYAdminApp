@@ -546,7 +546,7 @@ class UserRoleListForm(forms.Form):
 
 class AdjustCoefficientActionForm(forms.Form):
     id = forms.IntegerField(min_value=1)
-    value = forms.FloatField(min_value=0.01)
+    value = forms.FloatField(min_value=0.01, max_value=1.50)
 
 
 class AdjustCoefficientDetailForm(forms.Form):
