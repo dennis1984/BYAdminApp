@@ -423,6 +423,19 @@ class TagAction(generics.GenericAPIView):
     def get_tag_object(self, tag_id):
         return Tag.get_object(pk=tag_id)
 
+    def is_request_data_valid(self, method='post', **request_data):
+        dimension_id = request_data.get('dimension_id', 0)
+        if dimension_id:
+            dimension = Dimension.get_object(pk=dimension_id)
+            if isinstance(dimension, Exception):
+                return False, dimension.args
+        if method == 'put':
+            tag_config_ins = TagConfigure.get_object(tag_id=request_data['id'])
+            if not isinstance(tag_config_ins, Exception) and dimension_id:
+                return False, 'Can not operate this action.'
+
+        return True, None
+
     def post(self, request, *args, **kwargs):
         """
         添加标签信息
@@ -432,6 +445,9 @@ class TagAction(generics.GenericAPIView):
             return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         cld = form.cleaned_data
+        is_valid, error_message = self.is_request_data_valid(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
         serializer = TagSerializer(data=cld)
         if not serializer.is_valid():
             return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -552,6 +568,9 @@ class TagConfigureAction(generics.GenericAPIView):
         attribute_instance = self.get_attribute_object(attribute_id=kwargs['attribute_id'])
         if isinstance(attribute_instance, Exception):
             return False, attribute_instance.args
+
+        if attribute_instance.dimension_id != tag_instance.dimension_id:
+            return False, 'Params [attribute_id] is incorrect.'
 
         return True, None
 

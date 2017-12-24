@@ -67,6 +67,7 @@ class TagInputForm(forms.Form):
     name = forms.CharField(max_length=64)
     description = forms.CharField(max_length=256, required=False)
     picture = forms.ImageField()
+    dimension_id = forms.IntegerField()
 
 
 class TagUpdateForm(forms.Form):
@@ -74,6 +75,7 @@ class TagUpdateForm(forms.Form):
     name = forms.CharField(max_length=64, required=False)
     description = forms.CharField(max_length=256, required=False)
     picture = forms.ImageField(required=False)
+    dimension_id = forms.IntegerField(required=False)
 
 
 class TagDeleteForm(forms.Form):
