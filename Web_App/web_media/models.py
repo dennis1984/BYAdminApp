@@ -608,6 +608,8 @@ class Information(models.Model):
     like = models.IntegerField('点赞数量', default=0)
     # 收藏数量
     collection_count = models.IntegerField('收藏数量', default=0)
+    # 评论数量
+    comment_count = models.IntegerField('评论数量', default=0)
     # 运营标记：0：无标记 1：重磅发布
     mark = models.IntegerField('运营标记', default=0)
     # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
@@ -720,6 +722,8 @@ class Case(models.Model):
     like = models.IntegerField('点赞数量', default=0)
     # 收藏数量
     collection_count = models.IntegerField('收藏数量', default=0)
+    # 评论数量
+    comment_count = models.IntegerField('评论数量', default=0)
     # 运营标记：0：无标记 1：重磅发布
     mark = models.IntegerField('运营标记', default=0)
     # 栏目 0:无标记 1: 最新发布 2：电影大事件 3:娱乐营销观察 4:影片资讯
