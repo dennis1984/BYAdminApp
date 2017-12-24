@@ -508,7 +508,9 @@ class InformationSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def create_to_db(self, **kwargs):
-        return super(InformationSerializer, self).create_to_db(**kwargs)
+        instance = super(InformationSerializer, self).create_to_db(**kwargs)
+        self.delete_data_from_cache(instance.id)
+        return instance
 
     def update(self, instance, validated_data):
         self.delete_data_from_cache(instance.pk)
@@ -566,7 +568,9 @@ class CaseSerializer(BaseModelSerializer):
         fields = '__all__'
 
     def create_to_db(self, **kwargs):
-        return super(CaseSerializer, self).create_to_db(**kwargs)
+        instance = super(CaseSerializer, self).create_to_db(**kwargs)
+        self.delete_data_from_cache(instance.id)
+        return instance
 
     def update(self, instance, validated_data):
         self.delete_data_from_cache(instance.pk)
