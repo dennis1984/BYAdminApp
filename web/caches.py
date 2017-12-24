@@ -94,6 +94,12 @@ class BaseCache(object):
     def get_advert_detail_id_key(self, advert_id):
         return 'advert_detail:id:%s' % advert_id
 
+    def get_information_search_dict_title_tags_key(self):
+        return 'information_search_dict:title_tags'
+
+    def get_case_search_dict_title_tags_key(self):
+        return 'case_search_dict:title_tags'
+
     def delete_data_from_cache(self, key):
         self.handle.delete(key)
 
@@ -267,4 +273,14 @@ class BaseCache(object):
     # 删除广告数据
     def delete_advert_detail_by_advert_id(self, advert_id):
         key = self.get_advert_detail_id_key(advert_id=advert_id)
+        return self.delete_data_from_cache(key)
+
+    # 删除资讯ID为Key，title和tags为Value的字典（搜索用）
+    def delete_information_search_dict(self):
+        key = self.get_information_search_dict_title_tags_key()
+        return self.delete_data_from_cache(key)
+
+    # 删除案例ID为Key，title和tags为Value的字典（搜索用）
+    def delete_case_search_dict(self):
+        key = self.get_case_search_dict_title_tags_key()
         return self.delete_data_from_cache(key)

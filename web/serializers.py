@@ -527,7 +527,8 @@ class InformationSerializer(BaseModelSerializer):
 
     def delete_data_from_cache(self, information_id):
         # 删除缓存
-        return BaseCache().delete_information_by_id(information_id)
+        BaseCache().delete_information_by_id(information_id)
+        BaseCache().delete_information_search_dict()
 
 
 class InformationDetailSerializer(BaseSerializer):
@@ -582,7 +583,8 @@ class CaseSerializer(BaseModelSerializer):
 
     def delete_data_from_cache(self, case_id):
         # 删除缓存
-        return BaseCache().delete_case_by_id(case_id)
+        BaseCache().delete_case_by_id(case_id)
+        BaseCache().delete_case_search_dict()
 
 
 class CaseDetailSerializer(BaseSerializer):
