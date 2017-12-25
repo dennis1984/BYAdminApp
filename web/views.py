@@ -430,7 +430,7 @@ class TagAction(generics.GenericAPIView):
             if isinstance(dimension, Exception):
                 return False, dimension.args
         if method == 'put':
-            tag_config_ins = TagConfigure.get_object(tag_id=request_data['id'])
+            tag_config_ins = TagConfigure.filter_objects(tag_id=request_data['id'])
             if not isinstance(tag_config_ins, Exception) and dimension_id:
                 return False, 'Can not operate this action.'
 
