@@ -25,6 +25,9 @@ urlpatterns = [
     url(r'^tag_configure_detail/$', views.TagConfigureDetail.as_view()),
     url(r'^tag_configure_list/$', views.TagConfigureList.as_view()),
 
+    # 批量添加标签配置
+    url(r'^tag_batch_configure_action/$', views.TagBatchConfigureAction.as_view()),
+
     # 资源类型
     url(r'^media_type_action/$', views.MediaTypeAction.as_view()),
     url(r'^media_type_detail/$', views.MediaTypeDetail.as_view()),

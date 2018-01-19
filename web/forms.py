@@ -112,6 +112,16 @@ class TagConfigureDetailForm(forms.Form):
     id = forms.IntegerField(min_value=1)
 
 
+class TagBatchConfigureInputForm(forms.Form):
+    """
+    批量配置标签--属性匹配值
+    """
+    tag_id = forms.IntegerField(min_value=1)
+    # 配置详情：数据格式为JSON字符串，如：[{'attribute_id': 1, 'match_value': 3.5},
+    #                                {'attribute_id': 2, 'match_value': 4.3}, ...]
+    configure_json = forms.CharField(min_length=1)
+
+
 class TagConfigureListForm(forms.Form):
     tag_name = forms.CharField(max_length=64, required=False)
     tag_id = forms.IntegerField(min_value=1, required=False)

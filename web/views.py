@@ -69,6 +69,7 @@ from web.forms import (DimensionActionForm,
                        TagConfigureDeleteForm,
                        TagConfigureDetailForm,
                        TagConfigureListForm,
+                       TagBatchConfigureInputForm,
                        MediaConfigureInputForm,
                        MediaConfigureDeleteForm,
                        MediaConfigureDetailForm,
@@ -641,6 +642,77 @@ class TagConfigureAction(generics.GenericAPIView):
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+
+
+class TagBatchConfigureAction(generics.GenericAPIView):
+    """
+    标签批量配置操作
+    """
+    permission_classes = (IsOwnerOrReadOnly,)
+
+    def get_tag_object(self, tag_id):
+        return Tag.get_object(pk=tag_id)
+
+    def get_attribute_object(self, attribute_id):
+        return Attribute.get_object(pk=attribute_id)
+
+    def get_tag_configure_object(self, tag_configure_id):
+        return TagConfigure.get_object(pk=tag_configure_id)
+
+    def is_request_data_valid(self, **kwargs):
+        tag_instance = self.get_tag_object(tag_id=kwargs['tag_id'])
+        if isinstance(tag_instance, Exception):
+            return False, tag_instance.args
+
+        try:
+            configure_json = json.loads(kwargs['configure_json'])
+        except Exception as e:
+            return False, e.args
+
+        configure_json_error_message = 'Params [attribute_id] is incorrect.'
+        for item in configure_json:
+            if not isinstance(item, dict):
+                return False, configure_json_error_message
+            if 'attribute_id' not in item or 'match_value' not in item:
+                return False, configure_json_error_message
+            if item['match_value'] > 5.0:
+                return False, configure_json_error_message
+
+            attribute_instance = self.get_attribute_object(attribute_id=item['attribute_id'])
+            if isinstance(attribute_instance, Exception):
+                return False, attribute_instance.args
+            if attribute_instance.dimension_id != tag_instance.dimension_id:
+                return False, configure_json_error_message
+
+        return True, None
+
+    def post(self, request, *args, **kwargs):
+        """
+        批量添加标签配置信息
+        """
+        form = TagBatchConfigureInputForm(request.data, request.FILES)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        is_valid, error_message = self.is_request_data_valid(**cld)
+        if not is_valid:
+            return Response({'Detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+        configure_json = json.loads(cld['configure_json'])
+        for config_dict in configure_json:
+            init_data = config_dict
+            init_data['tag_id'] = cld['tag_id']
+
+            serializer = TagConfigureSerializer(data=init_data)
+            if not serializer.is_valid():
+                return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                serializer.save()
+            except Exception as e:
+                return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'Result': True}, status=status.HTTP_201_CREATED)
 
 
 class TagConfigureDetail(generics.GenericAPIView):
