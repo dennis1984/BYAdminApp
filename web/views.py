@@ -677,6 +677,11 @@ class TagBatchConfigureAction(generics.GenericAPIView):
                 return False, configure_json_error_message
             if item['match_value'] > 5.0:
                 return False, configure_json_error_message
+            # 此条数据已存在，此次操作为更新操作
+            if 'id' in item:
+                configure_ins = self.get_tag_configure_object(item['id'])
+                if isinstance(configure_ins, Exception):
+                    return False, configure_ins.args
 
             attribute_instance = self.get_attribute_object(attribute_id=item['attribute_id'])
             if isinstance(attribute_instance, Exception):
@@ -688,7 +693,7 @@ class TagBatchConfigureAction(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        批量添加标签配置信息
+        批量添加/更新标签配置信息
         """
         form = TagBatchConfigureInputForm(request.data, request.FILES)
         if not form.is_valid():
@@ -704,13 +709,23 @@ class TagBatchConfigureAction(generics.GenericAPIView):
             init_data = config_dict
             init_data['tag_id'] = cld['tag_id']
 
-            serializer = TagConfigureSerializer(data=init_data)
-            if not serializer.is_valid():
-                return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                serializer.save()
-            except Exception as e:
-                return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+            if 'id' in init_data:
+                # 此条数据已存在，此次操作为更新操作
+                configure_ins = self.get_tag_configure_object(init_data['id'])
+                serializer = TagConfigureSerializer(configure_ins)
+                try:
+                    serializer.update(configure_ins, init_data)
+                except Exception as e:
+                    return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # 此条数据不存在，此次操作为新建操作
+                serializer = TagConfigureSerializer(data=init_data)
+                if not serializer.is_valid():
+                    return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                try:
+                    serializer.save()
+                except Exception as e:
+                    return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'Result': True}, status=status.HTTP_201_CREATED)
 

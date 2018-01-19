@@ -117,8 +117,10 @@ class TagBatchConfigureInputForm(forms.Form):
     批量配置标签--属性匹配值
     """
     tag_id = forms.IntegerField(min_value=1)
-    # 配置详情：数据格式为JSON字符串，如：[{'attribute_id': 1, 'match_value': 3.5},
+    # 配置详情：数据格式为JSON字符串，如：[{'attribute_id': 1, 'match_value': 3.5, 'id': 1},
     #                                {'attribute_id': 2, 'match_value': 4.3}, ...]
+    # 如果元素中有'id' key，则表示此条数据已经存在，此次操作是更新操作，
+    # 如果元素中没有'id' key，则表示此条数据不存在，此次操作是新建操作。
     configure_json = forms.CharField(min_length=1)
 
 
