@@ -81,6 +81,14 @@ class Media(models.Model):
     # # 预计播出平台：数据格式为JSON字符串，如：['一线卫视', '视频网络渠道']
     # play_platform = models.CharField('播出平台', max_length=256)
 
+    # 浏览数
+    read_count = models.IntegerField('浏览数', default=0)
+    # 点赞数量
+    like = models.IntegerField('点赞数量', default=0)
+    # 收藏数量
+    collection_count = models.IntegerField('收藏数量', default=0)
+    # 评论数量
+    comment_count = models.IntegerField('评论数量', default=0)
     # 运营标记 0: 未设定 1：热门
     mark = models.IntegerField('运营标记', default=0)
 
