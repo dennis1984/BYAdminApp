@@ -12,7 +12,8 @@ from django.views.generic import View
 
 from users.serializers import (UserSerializer,
                                UserListSerializer,
-                               IdentifyingCodeSerializer,)
+                               IdentifyingCodeSerializer,
+                               UserDetailSerializer)
 from users.permissions import IsOwnerOrReadOnly
 from users.models import (User,
                           make_token_expire,
@@ -203,6 +204,41 @@ class UserAction(generics.GenericAPIView):
     update user API
     """
     permission_classes = (IsOwnerOrReadOnly, )
+
+    def does_username_exist(self, username):
+        user = User.get_object(phone=username)
+        if isinstance(user, Exception):
+            return False
+        return True
+
+    def get_perfect_request_data(self, **kwargs):
+        kwargs['phone'] = kwargs.pop('username')
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        """
+        创建管理员用户
+        """
+        form = CreateUserForm(request.data)
+        if not form.is_valid():
+            return Response({'Detail': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        cld = form.cleaned_data
+        does_username_exist = self.does_username_exist(cld['username'])
+        if does_username_exist:
+            return Response({'Detail': 'The phone number does exist.'})
+
+        cld = self.get_perfect_request_data(**cld)
+        serializer = UserSerializer(data=cld)
+        if not serializer.is_valid():
+            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer.save()
+        except Exception as e:
+            return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
+
+        response_serializer = UserDetailSerializer(serializer.instance)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
         """

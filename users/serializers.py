@@ -43,6 +43,12 @@ class UserSerializer(BaseModelSerializer):
             _validated_data = {'email': validated_data['username']}
         return super(UserSerializer, self).update(instance, _validated_data)
 
+    def save(self, **kwargs):
+        data = self.validated_data
+        phone = data.pop('phone')
+        password = data.pop('password')
+        return User.objects.create_superuser(username=phone, password=password, **kwargs)
+
 
 class UserDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()

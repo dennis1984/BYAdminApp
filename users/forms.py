@@ -70,11 +70,10 @@ class CreateUserForm(PasswordForm):
     """
     用户注册
     """
-    username = forms.CharField(max_length=200)
-    identifying_code = forms.CharField(min_length=6, max_length=10,
-                                       error_messages={
-                                           'required': u'验证码不能为空'
-                                       })
+    username = forms.CharField(min_length=11, max_length=11)
+    password = forms.CharField(min_length=6, max_length=100)
+    nickname = forms.CharField(max_length=100, required=False)
+    head_picture = forms.ImageField(required=False)
 
 
 class EmailForm(forms.Form):

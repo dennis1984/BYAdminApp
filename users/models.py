@@ -26,7 +26,7 @@ class UserManager(BaseUserManager):
         if len(password) < 6:
             raise ValueError('Password length must not less then 6!')
 
-        user = self.model(phone=username)
+        user = self.model(phone=username, **kwargs)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -46,8 +46,7 @@ HEAD_PICTURE_PATH = settings.PICTURE_DIRS['admin']['head_picture']
 class User(AbstractBaseUser):
     # email = models.EmailField(u'邮箱', max_length=200, unique=True, db_index=True,
     #                           null=True, blank=True)
-    phone = models.CharField(u'手机号', max_length=20, unique=True, db_index=True,
-                             null=True, blank=True)
+    phone = models.CharField(u'手机号', max_length=20, unique=True)
     nickname = models.CharField(u'昵称', max_length=100, null=True, blank=True)
 
     head_picture = models.ImageField(u'头像', max_length=200,
