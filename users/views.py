@@ -211,10 +211,6 @@ class UserAction(generics.GenericAPIView):
             return False
         return True
 
-    def get_perfect_request_data(self, **kwargs):
-        kwargs['phone'] = kwargs.pop('username')
-        return kwargs
-
     def post(self, request, *args, **kwargs):
         """
         创建管理员用户
@@ -227,18 +223,12 @@ class UserAction(generics.GenericAPIView):
         does_username_exist = self.does_username_exist(cld['username'])
         if does_username_exist:
             return Response({'Detail': 'The phone number does exist.'})
-
-        cld = self.get_perfect_request_data(**cld)
-        serializer = UserSerializer(data=cld)
-        if not serializer.is_valid():
-            return Response({'Detail': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            serializer.save()
+            user = User.objects.create_superuser(**cld)
         except Exception as e:
             return Response({'Detail': e.args}, status=status.HTTP_400_BAD_REQUEST)
-
-        response_serializer = UserDetailSerializer(serializer.instance)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def put(self, request, *args, **kwargs):
         """

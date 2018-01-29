@@ -43,16 +43,10 @@ class UserSerializer(BaseModelSerializer):
             _validated_data = {'email': validated_data['username']}
         return super(UserSerializer, self).update(instance, _validated_data)
 
-    def save(self, **kwargs):
-        data = self.validated_data
-        phone = data.pop('phone')
-        password = data.pop('password')
-        return User.objects.create_superuser(username=phone, password=password, **kwargs)
-
 
 class UserDetailSerializer(BaseSerializer):
     id = serializers.IntegerField()
-    phone = serializers.CharField(allow_blank=True, allow_null=True)
+    phone = serializers.CharField()
     # email = serializers.EmailField(allow_blank=True, allow_null=True)
     nickname = serializers.CharField(allow_blank=True, allow_null=True)
 
