@@ -142,6 +142,10 @@ class Media(models.Model):
                     'size': None,
                     'save_path': MEDIA_PICTURE_PATH,
                 },
+                'picture': {
+                    'size': None,
+                    'save_path': MEDIA_PICTURE_PATH,
+                },
             },
         }
 

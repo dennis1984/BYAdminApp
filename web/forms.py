@@ -66,7 +66,7 @@ class AttributeListForm(forms.Form):
 class TagInputForm(forms.Form):
     name = forms.CharField(max_length=64)
     description = forms.CharField(max_length=256, required=False)
-    picture = forms.ImageField()
+    picture = forms.ImageField(required=False)
     dimension_id = forms.IntegerField()
 
 
